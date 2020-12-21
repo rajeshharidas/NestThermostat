@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "http://localhost:8085/mynestreport/static/css/main.4c1c426b.chunk.css",
+    "main.js": "http://localhost:8085/mynestreport/static/js/main.fca1cf35.chunk.js",
+    "main.js.map": "http://localhost:8085/mynestreport/static/js/main.fca1cf35.chunk.js.map",
+    "runtime-main.js": "http://localhost:8085/mynestreport/static/js/runtime-main.3281fdc3.js",
+    "runtime-main.js.map": "http://localhost:8085/mynestreport/static/js/runtime-main.3281fdc3.js.map",
+    "static/css/2.20aa2d7b.chunk.css": "http://localhost:8085/mynestreport/static/css/2.20aa2d7b.chunk.css",
+    "static/js/2.286e317c.chunk.js": "http://localhost:8085/mynestreport/static/js/2.286e317c.chunk.js",
+    "static/js/2.286e317c.chunk.js.map": "http://localhost:8085/mynestreport/static/js/2.286e317c.chunk.js.map",
+    "static/js/3.4338bbd5.chunk.js": "http://localhost:8085/mynestreport/static/js/3.4338bbd5.chunk.js",
+    "static/js/3.4338bbd5.chunk.js.map": "http://localhost:8085/mynestreport/static/js/3.4338bbd5.chunk.js.map",
+    "index.html": "http://localhost:8085/mynestreport/index.html",
+    "static/css/2.20aa2d7b.chunk.css.map": "http://localhost:8085/mynestreport/static/css/2.20aa2d7b.chunk.css.map",
+    "static/css/main.4c1c426b.chunk.css.map": "http://localhost:8085/mynestreport/static/css/main.4c1c426b.chunk.css.map",
+    "static/js/2.286e317c.chunk.js.LICENSE.txt": "http://localhost:8085/mynestreport/static/js/2.286e317c.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.3281fdc3.js",
+    "static/css/2.20aa2d7b.chunk.css",
+    "static/js/2.286e317c.chunk.js",
+    "static/css/main.4c1c426b.chunk.css",
+    "static/js/main.fca1cf35.chunk.js"
+  ]
+}
