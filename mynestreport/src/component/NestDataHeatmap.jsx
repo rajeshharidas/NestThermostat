@@ -14,7 +14,7 @@ class NestDataHeatmap extends React.Component {
 
 	constructor(props) {
 		super(props)
-		this.state = { heatMapData: [], chartEvents: [], paging:{pageSize:0, currentPage:0, itemCount:0, pageCount:0 } };
+		this.state = { heatMapData: [], chartEvents: [], paging:{pageSize:0, currentPage:1, itemCount:0, pageCount:0 } };
 		this.loadThermostatData = this.loadThermostatData.bind(this);
 		this.loadThermostatData(0);
 	}
@@ -63,7 +63,7 @@ class NestDataHeatmap extends React.Component {
 				var pagingInfo = {
 						pageSize: response.data.page.size,
 						pageCount: response.data.page.totalPages,
-						currentPage: response.data.page.number,
+						currentPage: response.data.page.number+1,
 						itemCount: response.data.page.totalElements					
 					}
 
@@ -90,7 +90,7 @@ class NestDataHeatmap extends React.Component {
 	handlePageChange(pageNumber) {
     	console.log('active page is', pageNumber);
     	this.setState({currentPageNumber: pageNumber});
-		this.loadThermostatData(pageNumber);
+		this.loadThermostatData(pageNumber-1);
   	}
 
 	render() {
