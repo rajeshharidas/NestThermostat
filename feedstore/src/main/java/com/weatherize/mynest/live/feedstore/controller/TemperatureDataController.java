@@ -24,7 +24,7 @@ import com.weatherize.mynest.live.feedstore.repository.MyNestThermostatLiveRepos
 
 @CrossOrigin(origins = "http://localhost:8085")
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/dataapi")
 public class TemperatureDataController {
 
 	@Autowired
