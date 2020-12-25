@@ -134,12 +134,13 @@ public class TemperatureDataController {
 
 	@KafkaListener(topics = "myNestTopic")
 	public void listen(ConsumerRecord<?, ?> cr) throws Exception {
-		String json = cr.toString();
+		String json = cr.value().toString();
 		logger.info("Incoming json string from nest kafka topic: " + json);
 		JsonObject convertedObject = new Gson().fromJson(json, JsonObject.class);
 		
 		if (convertedObject.isJsonObject())
 		{
+			logger.info("Converted json object: " + convertedObject.toString());
 			try {
 				TemperatureData tempData = new TemperatureData();
 				tempData.setHumidity(convertedObject.get("humidity").getAsInt());
