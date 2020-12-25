@@ -1,13 +1,20 @@
 package com.weatherize.mynest.live.feedstore.controller;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.codehaus.jackson.JsonParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.weatherize.mynest.live.feedstore.model.TemperatureData;
 import com.weatherize.mynest.live.feedstore.repository.MyNestThermostatLiveRepository;
 
@@ -26,6 +35,8 @@ import com.weatherize.mynest.live.feedstore.repository.MyNestThermostatLiveRepos
 @RestController
 @RequestMapping("/dataapi")
 public class TemperatureDataController {
+
+	private static final Logger logger = LoggerFactory.getLogger(TemperatureDataController.class);
 
 	@Autowired
 	MyNestThermostatLiveRepository thermostatRepository;
@@ -121,4 +132,30 @@ public class TemperatureDataController {
 		}
 	}
 
+	@KafkaListener(topics = "myNestTopic")
+	public void listen(ConsumerRecord<?, ?> cr) throws Exception {
+		String json = cr.toString();
+		logger.info("Incoming json string from nest kafka topic: " + json);
+		JsonObject convertedObject = new Gson().fromJson(json, JsonObject.class);
+		
+		if (convertedObject.isJsonObject())
+		{
+			try {
+				TemperatureData tempData = new TemperatureData();
+				tempData.setHumidity(convertedObject.get("humidity").getAsInt());
+				tempData.setTemperature(convertedObject.get("temperature").getAsInt());
+				tempData.setTimeofcapture(DateFormat.getInstance().parse(convertedObject.get("timeofcapture").getAsString()));
+				tempData.setMode(convertedObject.get("mode").getAsString());
+				tempData.setHvacCycleOn(convertedObject.get("hvaccycleon").getAsBoolean());
+				tempData.setTimetotarget(convertedObject.get("timetotarget").getAsInt());
+				
+				
+				TemperatureData _temperatureData = thermostatRepository.save(tempData);
+				logger.info("Parsed json string as Temperature object: " + _temperatureData.toString());
+				
+			} catch (Exception e) {
+				logger.error("Kafka Listener error: " + e.getMessage());
+			}
+		}
+	}
 }

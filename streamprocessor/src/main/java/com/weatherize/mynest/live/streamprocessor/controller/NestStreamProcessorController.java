@@ -7,8 +7,10 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gcp.pubsub.core.PubSubTemplate;
 import org.springframework.cloud.gcp.pubsub.support.AcknowledgeablePubsubMessage;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.google.cloud.pubsub.v1.Subscriber;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.weatherize.mynest.live.streamprocessor.StreamprocessorApplication;
 
 @RestController
@@ -27,6 +31,10 @@ public class NestStreamProcessorController {
 		private final PubSubTemplate pubSubTemplate;
 
 		private final ArrayList<Subscriber> allSubscribers;
+		
+		@Autowired
+		private KafkaTemplate<String, String> template;
+
 
 		public NestStreamProcessorController(PubSubTemplate pubSubTemplate) {
 			this.pubSubTemplate = pubSubTemplate;
@@ -98,8 +106,18 @@ public class NestStreamProcessorController {
 		@GetMapping("/subscribe")
 		public RedirectView subscribe(@RequestParam("subscription") String subscriptionName) {
 			Subscriber subscriber = this.pubSubTemplate.subscribe(subscriptionName, (message) -> {
+
+				String json = message.getPubsubMessage().getData().toStringUtf8();
+
 				LOGGER.info("Message received from " + subscriptionName + " subscription: "
-						+ message.getPubsubMessage().getData().toStringUtf8());
+						+ json);
+				
+				JsonObject convertedObject = new Gson().fromJson(json, JsonObject.class);
+				if (convertedObject.isJsonObject()) {
+					//Transform into another payload
+					this.template.send("myNestTopic", json);
+				}
+				
 				message.ack();
 			});
 
