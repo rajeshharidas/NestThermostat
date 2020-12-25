@@ -1,11 +1,13 @@
 package com.weatherize.mynest.live.feedstore.controller;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.codehaus.jackson.JsonParser;
@@ -140,12 +142,16 @@ public class TemperatureDataController {
 		
 		if (convertedObject.isJsonObject())
 		{
-			logger.info("Converted json object: " + convertedObject.toString());
 			try {
+				logger.info("Converted json object: " + convertedObject.toString());
 				TemperatureData tempData = new TemperatureData();
 				tempData.setHumidity(convertedObject.get("humidity").getAsInt());
 				tempData.setTemperature(convertedObject.get("temperature").getAsInt());
-				tempData.setTimeofcapture(DateFormat.getInstance().parse(convertedObject.get("timeofcapture").getAsString()));
+				
+				DateFormat cstFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+				cstFormat.setTimeZone(TimeZone.getTimeZone("CST"));
+				Date date = cstFormat.parse(convertedObject.get("timeofcapture").getAsString());
+				tempData.setTimeofcapture(date);
 				tempData.setMode(convertedObject.get("mode").getAsString());
 				tempData.setHvacCycleOn(convertedObject.get("hvaccycleon").getAsBoolean());
 				tempData.setTimetotarget(convertedObject.get("timetotarget").getAsInt());
