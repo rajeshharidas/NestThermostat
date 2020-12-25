@@ -10,8 +10,8 @@ const NESTDATASERVICE_API_URL = `${BASE_API_URL}/mynest/thermostats`
 
 class ThermostatDataService {
 
-    retrieveAllThermostatData(name) {
-        return axios.get(`${NESTDATASERVICE_API_URL}`);		
+    retrieveAllThermostatData(page) {
+        return axios.get(`${NESTDATASERVICE_API_URL}?page=` + page);		
     }
 }
 

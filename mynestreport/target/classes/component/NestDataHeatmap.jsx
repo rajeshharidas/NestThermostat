@@ -8,14 +8,19 @@ import Moment from 'moment';
 import ThermostatDataService from '../service/thermostatDataService'
 import Collapsible from 'react-collapsible';
 import Chart from "react-google-charts";
+import Pagination from "react-js-pagination";
 
 class NestDataHeatmap extends React.Component {
 
 	constructor(props) {
 		super(props)
-		this.state = { heatMapData: [], chartEvents: [] };
-
-		ThermostatDataService.retrieveAllThermostatData()
+		this.state = { heatMapData: [], chartEvents: [], paging:{pageSize:0, currentPage:1, itemCount:0, pageCount:0 } };
+		this.loadThermostatData = this.loadThermostatData.bind(this);
+		this.loadThermostatData(0);
+	}
+	
+	loadThermostatData(pageNumber) {
+		ThermostatDataService.retrieveAllThermostatData(pageNumber)
 			.then(response => {
 
 				const thermostats = Array.from(response.data._embedded.thermostats);
@@ -54,6 +59,13 @@ class NestDataHeatmap extends React.Component {
 
 					heatMapData.push(heatMapDataRow);
 				});
+				
+				var pagingInfo = {
+						pageSize: response.data.page.size,
+						pageCount: response.data.page.totalPages,
+						currentPage: response.data.page.number+1,
+						itemCount: response.data.page.totalElements					
+					}
 
 				this.setState({
 					heatMapData: heatMapData,
@@ -64,14 +76,22 @@ class NestDataHeatmap extends React.Component {
 								console.log("Selected ", chartWrapper.getChart().getSelection());
 							}
 						}
-					]
+					],
+					paging: pagingInfo
 				});
 
 				console.log("Service data", thermostats);
 				console.log("Heat map data", heatMapData);
+				console.log("Paging data", pagingInfo);
 			}
 			);
 	}
+	
+	handlePageChange(pageNumber) {
+    	console.log('active page is', pageNumber);
+    	this.setState({currentPageNumber: pageNumber});
+		this.loadThermostatData(pageNumber-1);
+  	}
 
 	render() {
 
@@ -96,7 +116,18 @@ class NestDataHeatmap extends React.Component {
 			</Collapsible>;
 		});
 		//return the components to be rendered
-		return (<div>{items}</div>)
+		return (<div>
+			<div>{items}</div>
+			<div>
+				<Pagination itemClass="page-item" linkClass="page-link"
+					activePage={this.state.paging.currentPage}
+					itemsCountPerPage={this.state.paging.pageCount}
+					totalItemsCount={this.state.paging.itemCount}
+					pageRangeDisplayed={this.state.paging.pageSize}
+					onChange={this.handlePageChange.bind(this)}
+				/>
+			</div>
+		</div>)
 	}
 }
 
