@@ -2,6 +2,7 @@ package com.weatherize.mynest.live.feedstore.model;
 
 import java.util.Date;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.core.mapping.Table;
@@ -9,7 +10,7 @@ import org.springframework.data.cassandra.core.mapping.Table;
 @Table
 public class TemperatureData {
 
-	@PrimaryKeyColumn(name = "timeofcapture", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
+	@Id 
 	private Date timeofcapture;
 
 	private Integer temperature;

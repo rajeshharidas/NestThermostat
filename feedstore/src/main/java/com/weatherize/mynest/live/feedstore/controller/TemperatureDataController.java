@@ -31,14 +31,11 @@ public class TemperatureDataController {
 	MyNestThermostatLiveRepository thermostatRepository;
 
 	@GetMapping("/temperaturedata")
-	public ResponseEntity<List<TemperatureData>> getAllTemperatureData(@RequestParam(required = false) Date timeStamp) {
+	public ResponseEntity<List<TemperatureData>> getAllTemperatureData() {
 		try {
 			List<TemperatureData> temperatureData = new ArrayList<TemperatureData>();
 
-			if (timeStamp == null)
-				thermostatRepository.findAll().forEach(temperatureData::add);
-			else
-				thermostatRepository.findById(timeStamp).stream().forEach(temperatureData::add);
+			thermostatRepository.findAll().forEach(temperatureData::add);
 
 			if (temperatureData.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);

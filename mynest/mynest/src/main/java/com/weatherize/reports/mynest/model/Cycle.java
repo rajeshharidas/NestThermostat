@@ -3,6 +3,7 @@ package com.weatherize.reports.mynest.model;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -76,7 +77,20 @@ public class Cycle {
 	
 	public String getCaptionText() {
 		
-		this.captionText = this.getTime(startTime) + " to " + this.getTime(endTime);
+		
+		if (this.getTime(endTime).contains("AM"))
+		{
+			this.captionText = "Morning Cycle" ;		
+		}
+		else if (this.getTime(endTime).contains("PM"))
+		{
+			this.captionText = "Afternoon Cycle" ;		
+		}
+		else if (this.getTime(endTime).contains("12:00 PM"))
+		{
+			this.captionText = "Noon Cycle" ;	
+		}		
+			
 		return this.captionText;
 	}
 
