@@ -1,25 +1,25 @@
 {
   "files": {
-    "main.css": "http://localhost:8085/mynestreport/static/css/main.4c1c426b.chunk.css",
-    "main.js": "http://localhost:8085/mynestreport/static/js/main.257031be.chunk.js",
-    "main.js.map": "http://localhost:8085/mynestreport/static/js/main.257031be.chunk.js.map",
-    "runtime-main.js": "http://localhost:8085/mynestreport/static/js/runtime-main.b165e9cd.js",
-    "runtime-main.js.map": "http://localhost:8085/mynestreport/static/js/runtime-main.b165e9cd.js.map",
+    "main.css": "http://localhost:8085/mynestreport/static/css/main.992e9ae8.chunk.css",
+    "main.js": "http://localhost:8085/mynestreport/static/js/main.44cfd598.chunk.js",
+    "main.js.map": "http://localhost:8085/mynestreport/static/js/main.44cfd598.chunk.js.map",
+    "runtime-main.js": "http://localhost:8085/mynestreport/static/js/runtime-main.b1181ab4.js",
+    "runtime-main.js.map": "http://localhost:8085/mynestreport/static/js/runtime-main.b1181ab4.js.map",
     "static/css/2.20aa2d7b.chunk.css": "http://localhost:8085/mynestreport/static/css/2.20aa2d7b.chunk.css",
-    "static/js/2.9b94efd3.chunk.js": "http://localhost:8085/mynestreport/static/js/2.9b94efd3.chunk.js",
-    "static/js/2.9b94efd3.chunk.js.map": "http://localhost:8085/mynestreport/static/js/2.9b94efd3.chunk.js.map",
-    "static/js/3.0480f6a8.chunk.js": "http://localhost:8085/mynestreport/static/js/3.0480f6a8.chunk.js",
-    "static/js/3.0480f6a8.chunk.js.map": "http://localhost:8085/mynestreport/static/js/3.0480f6a8.chunk.js.map",
+    "static/js/2.8f805a10.chunk.js": "http://localhost:8085/mynestreport/static/js/2.8f805a10.chunk.js",
+    "static/js/2.8f805a10.chunk.js.map": "http://localhost:8085/mynestreport/static/js/2.8f805a10.chunk.js.map",
+    "static/js/3.7aae350f.chunk.js": "http://localhost:8085/mynestreport/static/js/3.7aae350f.chunk.js",
+    "static/js/3.7aae350f.chunk.js.map": "http://localhost:8085/mynestreport/static/js/3.7aae350f.chunk.js.map",
     "index.html": "http://localhost:8085/mynestreport/index.html",
     "static/css/2.20aa2d7b.chunk.css.map": "http://localhost:8085/mynestreport/static/css/2.20aa2d7b.chunk.css.map",
-    "static/css/main.4c1c426b.chunk.css.map": "http://localhost:8085/mynestreport/static/css/main.4c1c426b.chunk.css.map",
-    "static/js/2.9b94efd3.chunk.js.LICENSE.txt": "http://localhost:8085/mynestreport/static/js/2.9b94efd3.chunk.js.LICENSE.txt"
+    "static/css/main.992e9ae8.chunk.css.map": "http://localhost:8085/mynestreport/static/css/main.992e9ae8.chunk.css.map",
+    "static/js/2.8f805a10.chunk.js.LICENSE.txt": "http://localhost:8085/mynestreport/static/js/2.8f805a10.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.b165e9cd.js",
+    "static/js/runtime-main.b1181ab4.js",
     "static/css/2.20aa2d7b.chunk.css",
-    "static/js/2.9b94efd3.chunk.js",
-    "static/css/main.4c1c426b.chunk.css",
-    "static/js/main.257031be.chunk.js"
+    "static/js/2.8f805a10.chunk.js",
+    "static/css/main.992e9ae8.chunk.css",
+    "static/js/main.44cfd598.chunk.js"
   ]
 }

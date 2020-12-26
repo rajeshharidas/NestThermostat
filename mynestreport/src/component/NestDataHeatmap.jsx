@@ -98,7 +98,7 @@ class NestDataHeatmap extends React.Component {
 		//Create a list of components to render from the heatmap data
 		const items = this.state.heatMapData.map(function(element) {
 			//Group heat map data by dates			
-			return <Collapsible trigger={element.timeRange.Caption}>
+			return <Collapsible trigger={element.timeRange.Caption} >
 
 				{
 					element.chartData ?

@@ -48,8 +48,6 @@ class NestDataHeatmap extends React.Component {
 							var chartDataRow = [];
 							chartDataRow.push(cycle.captionText);
 							chartDataRow.push(cycle.duration);
-							
-																						
 							chartDataRow.push(Moment(cycle.startTime).toDate());
 							chartDataRow.push(Moment(cycle.endTime).toDate());
 							heatMapDataRow.chartData.push(chartDataRow);
@@ -100,7 +98,7 @@ class NestDataHeatmap extends React.Component {
 		//Create a list of components to render from the heatmap data
 		const items = this.state.heatMapData.map(function(element) {
 			//Group heat map data by dates			
-			return <Collapsible trigger={element.timeRange.Caption}>
+			return <Collapsible trigger={element.timeRange.Caption} >
 
 				{
 					element.chartData ?
