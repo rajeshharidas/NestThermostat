@@ -39,6 +39,9 @@ class NestDataHeatmap extends React.Component {
 							[
 								{ type: 'string', id: 'Caption' },
 								{ type: 'string', id: 'Duration' },
+								{ type: 'boolean', id: 'HeatOn' },
+								{ type: 'boolean', id: 'AcOn' },
+								{ type: 'boolean', id: 'FanOn' },								
 								{ type: 'date', id: 'StartTime' },
 								{ type: 'date', id: 'EndTime' }
 							]
@@ -48,6 +51,9 @@ class NestDataHeatmap extends React.Component {
 							var chartDataRow = [];
 							chartDataRow.push(cycle.captionText);
 							chartDataRow.push(cycle.duration);
+							chartDataRow.push(cycle.heatOn);
+							chartDataRow.push(cycle.acOn);
+							chartDataRow.push(cycle.fanOn);
 							chartDataRow.push(Moment(cycle.startTime).toDate());
 							chartDataRow.push(Moment(cycle.endTime).toDate());
 							heatMapDataRow.chartData.push(chartDataRow);

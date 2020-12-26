@@ -18,6 +18,55 @@ public class Cycle {
 	@Field(value = "duration")
 	private String duration;
 
+	@Field(value = "heat1")
+	private Boolean heatOn;
+	
+	@Field(value = "cool1")
+	private Boolean acOn;
+	
+	@Field(value = "fan")
+	private Boolean fanOn;
+	
+	public Cycle(String plainText, String duration, Boolean heatOn, Boolean acOn, Boolean fanOn, String startTime,
+			String endTime, String captionText) {
+		super();
+		this.plainText = plainText;
+		this.duration = duration;
+		this.heatOn = heatOn;
+		this.acOn = acOn;
+		this.fanOn = fanOn;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.captionText = captionText;
+	}
+
+	public Boolean getHeatOn() {
+		return this.heatOn;
+	}
+
+	public void setHeatOn(Boolean heatOn) {
+		this.heatOn = heatOn;
+	}
+
+	public Boolean getAcOn() {
+		return this.acOn;
+	}
+
+	public void setAcOn(Boolean acOn) {
+		this.acOn = acOn;
+	}
+
+	public Boolean getFanOn() {
+		return this.fanOn;
+	}
+
+	public void setFanOn(Boolean fanOn) {
+		this.fanOn = fanOn;
+	}
+
+
+
+	
 	@Field(value = "caption.parameters.startTime")
 	private String startTime;
 
@@ -94,15 +143,6 @@ public class Cycle {
 		return this.captionText;
 	}
 
-	public Cycle(String plainText, String duration, String startTime, String endTime, String captionText) {
-		super();
-		this.plainText = plainText;
-		this.duration = duration;
-		this.startTime = startTime;
-		this.endTime = endTime;
-		this.captionText = captionText;
-	}
-
 	public Cycle() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -110,8 +150,9 @@ public class Cycle {
 
 	@Override
 	public String toString() {
-		return "Cycle [captionText=" + captionText + ", duration=" + duration + ", startTime=" + startTime
-				+ ", endTime=" + endTime + "]";
+		return "Cycle [plainText=" + plainText + ", duration=" + duration + ", HeatOn=" + heatOn + ", AcOn=" + acOn
+				+ ", FanOn=" + fanOn + ", startTime=" + startTime + ", endTime=" + endTime + ", captionText="
+				+ captionText + "]";
 	}
 
 	public String getPlainText() {
