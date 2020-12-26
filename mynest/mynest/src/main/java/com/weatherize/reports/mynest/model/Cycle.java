@@ -63,9 +63,6 @@ public class Cycle {
 	public void setFanOn(Boolean fanOn) {
 		this.fanOn = fanOn;
 	}
-
-
-
 	
 	@Field(value = "caption.parameters.startTime")
 	private String startTime;
@@ -129,16 +126,25 @@ public class Cycle {
 		
 		if (this.getTime(endTime).contains("AM"))
 		{
-			this.captionText = "Morning Cycle" ;		
+			this.captionText = "Morning" ;				
 		}
 		else if (this.getTime(endTime).contains("PM"))
 		{
-			this.captionText = "Afternoon Cycle" ;		
+			this.captionText = "Afternoon" ;		
 		}
 		else if (this.getTime(endTime).contains("12:00 PM"))
 		{
-			this.captionText = "Noon Cycle" ;	
+			this.captionText = "Noon" ;	
 		}		
+		
+		if (this.heatOn == true)
+			this.captionText = this.captionText + " Heating";
+		else if (this.acOn == true)
+			this.captionText = this.captionText + " Cooling";
+		else if (this.fanOn == true)
+			this.captionText = this.captionText + " Fan On";
+		else 
+			this.captionText = this.captionText + " Cycle";
 			
 		return this.captionText;
 	}
