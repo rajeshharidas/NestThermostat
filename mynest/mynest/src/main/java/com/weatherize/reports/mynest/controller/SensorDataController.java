@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -29,7 +30,7 @@ public class SensorDataController {
 			@RequestParam(defaultValue = "15") int size) {
 		try {
 			List<SensorData> entries = new ArrayList<SensorData>();
-			Pageable paging = PageRequest.of(page, size);
+			Pageable paging = PageRequest.of(page, size,Sort.by("dateCaptured").descending().by("timeCaptured").descending());
 
 			sensorRepository.findAll(paging).forEach(entries::add);
 

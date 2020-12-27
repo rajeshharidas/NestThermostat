@@ -10,8 +10,8 @@ const NESTDATASERVICE_API_URL = `${BASE_API_URL}/mynest/sensorDatas`
 
 class SensorDataService {
 
-    retrieveAllSensorData(page) {
-        return axios.get(`${NESTDATASERVICE_API_URL}?page=` + page);		
+    retrieveAllSensorData(page,size) {
+        return axios.get(`${NESTDATASERVICE_API_URL}?sort=desc&page=` + page + `&size=` + size);		
     }
 }
 

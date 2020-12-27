@@ -23,11 +23,12 @@ public class SensorData {
 	@Field(value = "Time")
 	private String timeCaptured;
 	@Field(value = "avg(temp)")
-	private float avgTemp;
+	private String avgTemp;
 	@Field(value = "avg(humidity)")
-	private float avgHumidity;
+	private String avgHumidity;
 	
 	private String timestamp;
+	private Date sortTimestamp;
 
 	
 	public SensorData() {
@@ -54,6 +55,7 @@ public class SensorData {
 			DateFormat cstFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 			cstFormat.setTimeZone(TimeZone.getTimeZone("CST"));
 			
+			this.sortTimestamp = cstFormat.parse(cstFormat.format(date));
 			return cstFormat.format(date);
 			
 		} catch (ParseException pex) {
@@ -67,8 +69,12 @@ public class SensorData {
 		timestamp = getTimeStamp(this.dateCaptured,this.timeCaptured);
 		return timestamp;
 	}
+	
+	public Date getSortTimestamp() {
+		return this.sortTimestamp;
+	}
 
-	public SensorData(String id, String dateCaptured, String timeCaptured, float avgTemp, float avgHumidity) {
+	public SensorData(String id, String dateCaptured, String timeCaptured, String avgTemp, String avgHumidity) {
 		super();
 		this.id = id;
 		this.dateCaptured = dateCaptured;
@@ -99,19 +105,19 @@ public class SensorData {
 		this.timestamp = getTimeStamp(this.dateCaptured,this.timeCaptured);
 	}
 
-	public float getAvgTemp() {
+	public String getAvgTemp() {
 		return avgTemp;
 	}
 
-	public void setAvgTemp(float avgTemp) {
+	public void setAvgTemp(String avgTemp) {
 		this.avgTemp = avgTemp;
 	}
 
-	public float getAvgHumidity() {
+	public String getAvgHumidity() {
 		return avgHumidity;
 	}
 
-	public void setAvgHumidity(float avgHumidity) {
+	public void setAvgHumidity(String avgHumidity) {
 		this.avgHumidity = avgHumidity;
 	}
 

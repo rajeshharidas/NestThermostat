@@ -121,7 +121,7 @@ class NestDataHeatmap extends React.Component {
 			<div>
 				<Pagination itemClass="page-item" linkClass="page-link"
 					activePage={this.state.paging.currentPage}
-					itemsCountPerPage={this.state.paging.pageCount}
+					itemsCountPerPage={20}
 					totalItemsCount={this.state.paging.itemCount}
 					pageRangeDisplayed={this.state.paging.pageSize}
 					onChange={this.handlePageChange.bind(this)}

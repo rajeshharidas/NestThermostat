@@ -28,7 +28,7 @@ class SensorDataChart extends React.Component {
 	}
 
 	loadSensorData(pageNumber) {
-		SensorDataService.retrieveAllSensorData(pageNumber)
+		SensorDataService.retrieveAllSensorData(pageNumber,100)
 			.then(response => {
 
 				const sensordatas = Array.from(response.data._embedded.sensorDatas);
@@ -48,7 +48,8 @@ class SensorDataChart extends React.Component {
 					chartDataRow.push(datetime);
 					chartDataRow.push(element.avgTemp);
 					chartDataRow.push(element.avgHumidity);
-					sensorDataArray.push(chartDataRow);
+					if (element.avgTemp !== "" && element.avgHumidity !== "")
+						sensorDataArray.push(chartDataRow);
 				});
 
 				var pagingInfo = {
@@ -91,8 +92,8 @@ class SensorDataChart extends React.Component {
 								title:
 									'Average Temperatures and Humidity Throughout the Year',
 							},
-							width: 900,
-							height: 500,
+							width: 1000,
+							height: 800,
 							hAxis: {
 								format: 'MM/dd/yyyy hh:mm a',
 								gridlines: { count: 15 },
@@ -119,7 +120,7 @@ class SensorDataChart extends React.Component {
 				<div>
 					<Pagination itemClass="page-item" linkClass="page-link"
 						activePage={this.state.paging.currentPage}
-						itemsCountPerPage={this.state.paging.pageCount}
+						itemsCountPerPage={100}
 						totalItemsCount={this.state.paging.itemCount}
 						pageRangeDisplayed={this.state.paging.pageSize}
 						onChange={this.handlePageChange.bind(this)}
