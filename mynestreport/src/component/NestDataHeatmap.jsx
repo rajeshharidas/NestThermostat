@@ -23,7 +23,7 @@ class NestDataHeatmap extends React.Component {
 		ThermostatDataService.retrieveAllThermostatData(pageNumber)
 			.then(response => {
 
-				const thermostats = Array.from(response.data._embedded.thermostats);
+				const thermostats = Array.from(response.data.values);
 
 				var heatMapData = [];
 
@@ -61,10 +61,10 @@ class NestDataHeatmap extends React.Component {
 				});
 				
 				var pagingInfo = {
-						pageSize: response.data.page.size,
-						pageCount: response.data.page.totalPages,
-						currentPage: response.data.page.number+1,
-						itemCount: response.data.page.totalElements					
+						pageSize: response.data.size,
+						pageCount: response.data.totalPages,
+						currentPage: response.data.number+1,
+						itemCount: response.data.totalElements					
 					}
 
 				this.setState({

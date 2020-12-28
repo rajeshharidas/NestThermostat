@@ -6,7 +6,7 @@
 import axios from 'axios'
 
 const BASE_API_URL = 'http://localhost:8085'
-const NESTDATASERVICE_API_URL = `${BASE_API_URL}/mynest/thermostats`
+const NESTDATASERVICE_API_URL = `${BASE_API_URL}/mynest/api/thermostats`
 
 class ThermostatDataService {
 

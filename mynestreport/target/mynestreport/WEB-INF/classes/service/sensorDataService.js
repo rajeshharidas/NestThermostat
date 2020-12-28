@@ -6,12 +6,12 @@
 import axios from 'axios'
 
 const BASE_API_URL = 'http://localhost:8085'
-const NESTDATASERVICE_API_URL = `${BASE_API_URL}/mynest/sensorDatas`
+const SENSORDATASERVICE_API_URL = `${BASE_API_URL}/mynest/api/sensordata`
 
 class SensorDataService {
 
     retrieveAllSensorData(page,size) {
-        return axios.get(`${NESTDATASERVICE_API_URL}?sort=desc&page=` + page + `&size=` + size);		
+        return axios.get(`${SENSORDATASERVICE_API_URL}?sort=desc&page=` + page + `&size=` + size);		
     }
 }
 

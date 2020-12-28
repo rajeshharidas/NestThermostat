@@ -31,7 +31,7 @@ class SensorDataChart extends React.Component {
 		SensorDataService.retrieveAllSensorData(pageNumber,100)
 			.then(response => {
 
-				const sensordatas = Array.from(response.data._embedded.sensorDatas);
+				const sensordatas = Array.from(response.data.values);
 
 				var sensorDataArray = [
 					[
@@ -53,10 +53,10 @@ class SensorDataChart extends React.Component {
 				});
 
 				var pagingInfo = {
-					pageSize: response.data.page.size,
-					pageCount: response.data.page.totalPages,
-					currentPage: response.data.page.number + 1,
-					itemCount: response.data.page.totalElements
+					pageSize: response.data.size,
+					pageCount: response.data.totalPages,
+					currentPage: response.data.number + 1,
+					itemCount: response.data.totalElements
 				}
 
 				this.setState({

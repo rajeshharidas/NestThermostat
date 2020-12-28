@@ -122,7 +122,7 @@ public class SensorData {
 	public void setAvgHumidity(String avgHumidity) {
 		this.avgHumidity = avgHumidity;
 	}
-
+	
 	public void setId(String id) {
 		this.id = id;
 	}
