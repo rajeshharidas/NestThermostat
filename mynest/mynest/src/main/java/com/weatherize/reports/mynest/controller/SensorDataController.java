@@ -30,9 +30,9 @@ public class SensorDataController {
 			@RequestParam(defaultValue = "15") int size) {
 		try {
 			List<SensorData> entries = new ArrayList<SensorData>();
-			Pageable paging = PageRequest.of(page, size,Sort.by("dateCaptured").descending().by("timeCaptured").descending());
+			Pageable paging = PageRequest.of(page, size,Sort.by("Date").descending().and(Sort.by("Time").descending()));
 
-			sensorRepository.findAll(paging).forEach(entries::add);
+			sensorRepository.findAllByOrderByDateCapturedDesc(paging).forEach(entries::add);
 
 			if (entries.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);

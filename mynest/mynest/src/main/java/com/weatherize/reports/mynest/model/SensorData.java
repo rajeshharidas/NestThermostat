@@ -8,12 +8,15 @@ import java.util.List;
 import java.util.TimeZone;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "SensorData")
+@CompoundIndexes({ @CompoundIndex(name = "DateTimeIndex", def = "{'Date' : -1, 'Time' : -1}", unique=true) })
 public class SensorData {
-
 
 	@Id
 	private String id;
@@ -26,11 +29,10 @@ public class SensorData {
 	private String avgTemp;
 	@Field(value = "avg(humidity)")
 	private String avgHumidity;
-	
+
 	private String timestamp;
 	private Date sortTimestamp;
 
-	
 	public SensorData() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -46,7 +48,7 @@ public class SensorData {
 
 		String dateTime = dateCaptured + 'T' + timeCaptured + ":00Z";
 		try {
-			
+
 			DateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 			utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
@@ -54,10 +56,10 @@ public class SensorData {
 
 			DateFormat cstFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 			cstFormat.setTimeZone(TimeZone.getTimeZone("CST"));
-			
+
 			this.sortTimestamp = cstFormat.parse(cstFormat.format(date));
 			return cstFormat.format(date);
-			
+
 		} catch (ParseException pex) {
 			System.out.println(pex.getMessage());
 		}
@@ -65,11 +67,11 @@ public class SensorData {
 	}
 
 	public String getTimestamp() {
-		
-		timestamp = getTimeStamp(this.dateCaptured,this.timeCaptured);
+
+		timestamp = getTimeStamp(this.dateCaptured, this.timeCaptured);
 		return timestamp;
 	}
-	
+
 	public Date getSortTimestamp() {
 		return this.sortTimestamp;
 	}
@@ -86,7 +88,7 @@ public class SensorData {
 	public String getId() {
 		return id;
 	}
-	
+
 	public String getDateCaptured() {
 		return dateCaptured;
 	}
@@ -102,7 +104,7 @@ public class SensorData {
 	public void setTimeCaptured(String timeCaptured) {
 
 		this.timeCaptured = timeCaptured;
-		this.timestamp = getTimeStamp(this.dateCaptured,this.timeCaptured);
+		this.timestamp = getTimeStamp(this.dateCaptured, this.timeCaptured);
 	}
 
 	public String getAvgTemp() {
