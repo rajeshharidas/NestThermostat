@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.springframework.data.cassandra.repository.AllowFiltering;
 import org.springframework.data.cassandra.repository.CassandraRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 import com.weatherize.mynest.live.feedstore.model.TemperatureData;
 
@@ -13,4 +16,6 @@ public interface MyNestThermostatLiveRepository extends CassandraRepository<Temp
 	List<TemperatureData> findByMode(String mode);
 	@AllowFiltering
 	List<TemperatureData> findByHvacCycleOn(boolean hvacCycleOn);
+	
+	Slice<TemperatureData> findAllByOrderByTimeofcaptureDesc ();
 }

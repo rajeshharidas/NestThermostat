@@ -2,22 +2,23 @@ package com.weatherize.mynest.live.feedstore.controller;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.codehaus.jackson.JsonParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -34,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.weatherize.mynest.live.feedstore.model.FeedResponse;
 import com.weatherize.mynest.live.feedstore.model.TemperatureData;
 import com.weatherize.mynest.live.feedstore.repository.MyNestThermostatLiveRepository;
 
@@ -48,17 +50,29 @@ public class TemperatureDataController {
 	MyNestThermostatLiveRepository thermostatRepository;
 
 	@GetMapping("/temperaturedata")
-	public ResponseEntity<List<TemperatureData>> getAllTemperatureData() {
+	public ResponseEntity<FeedResponse<TemperatureData>> getAllTemperatureData(@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "15") int size) {
 		try {
 			List<TemperatureData> temperatureData = new ArrayList<TemperatureData>();
 
-			thermostatRepository.findAll().forEach(temperatureData::add);
+			List<TemperatureData> pageData = thermostatRepository.findAll();
+			
+			FeedResponse<TemperatureData> nestResponse = new FeedResponse<TemperatureData>();
+			
+			nestResponse.setTotalElements(pageData.size());
+			nestResponse.setNumber(0);
+			nestResponse.setTotalPages(pageData.size());
+			nestResponse.setSize(pageData.size());
+			
+			pageData.forEach(temperatureData::add);
+			nestResponse.setValues(temperatureData);
+
 
 			if (temperatureData.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
-			return new ResponseEntity<>(temperatureData, HttpStatus.OK);
+			return new ResponseEntity<>(nestResponse, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
