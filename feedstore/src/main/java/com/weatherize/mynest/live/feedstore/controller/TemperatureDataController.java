@@ -2,6 +2,10 @@ package com.weatherize.mynest.live.feedstore.controller;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -133,6 +137,13 @@ public class TemperatureDataController {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	public LocalDateTime convertToLocalDateTimeViaInstant(Date dateToConvert) {
+	    return dateToConvert.toInstant()
+	      .atZone(ZoneId.systemDefault())
+	      .toLocalDateTime();
+	}
+
 
 	@KafkaListener(topics = "myNestTopic")
 	public void listen(ConsumerRecord<?, ?> cr) throws Exception {
@@ -145,17 +156,19 @@ public class TemperatureDataController {
 			try {
 				logger.info("Converted json object: " + convertedObject.toString());
 				TemperatureData tempData = new TemperatureData();
-				tempData.setHumidity(convertedObject.get("humidity").getAsInt());
-				tempData.setTemperature(convertedObject.get("temperature").getAsInt());
+				tempData.setHumidity(convertedObject.get("humidity").getAsFloat());
+				tempData.setTemperature(convertedObject.get("temperature").getAsFloat());
 				
-				DateFormat cstFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+				DateFormat cstFormat = new SimpleDateFormat("MM/dd/yy','HH:mm a");
 				cstFormat.setTimeZone(TimeZone.getTimeZone("CST"));
-				Date date = cstFormat.parse(convertedObject.get("timeofcapture").getAsString());
+				LocalDateTime date = convertToLocalDateTimeViaInstant(cstFormat.parse(convertedObject.get("timeofcapture").getAsString()));
 				tempData.setTimeofcapture(date);
 				tempData.setMode(convertedObject.get("mode").getAsString());
 				tempData.setHvacCycleOn(convertedObject.get("hvaccycleon").getAsBoolean());
-				tempData.setTimetotarget(convertedObject.get("timetotarget").getAsInt());
+				tempData.setTimetotarget(convertedObject.get("timetotarget").getAsFloat());
 				
+				logger.info("Saving data - ", date);
+
 				
 				TemperatureData _temperatureData = thermostatRepository.save(tempData);
 				logger.info("Parsed json string as Temperature object: " + _temperatureData.toString());

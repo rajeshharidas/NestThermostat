@@ -1,21 +1,21 @@
 package com.weatherize.mynest.live.feedstore.model;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
-import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
+import org.springframework.data.cassandra.core.mapping.CassandraType;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 @Table
 public class TemperatureData {
 
 	@Id 
-	private Date timeofcapture;
+	private LocalDateTime timeofcapture;
 
-	private Integer temperature;
-	private Integer timetotarget;
-	private Integer humidity;
+	private Float temperature;
+	private Float timetotarget;
+	private Float humidity;
 	private boolean hvacCycleOn;
 	private String mode;
 
@@ -24,7 +24,7 @@ public class TemperatureData {
 
 	}
 
-	public TemperatureData(Date timeofcapture, Integer temperature, Integer timetotarget, Integer humidity,
+	public TemperatureData(LocalDateTime timeofcapture, Float temperature, Float timetotarget, Float humidity,
 			boolean hvacCycleOn, String mode) {
 		super();
 		this.timeofcapture = timeofcapture;
@@ -62,35 +62,35 @@ public class TemperatureData {
 	}
 
 
-	public Date getTimeofcapture() {
+	public LocalDateTime getTimeofcapture() {
 		return timeofcapture;
 	}
 
-	public void setTimeofcapture(Date timeofcapture) {
+	public void setTimeofcapture(LocalDateTime timeofcapture) {
 		this.timeofcapture = timeofcapture;
 	}
 
-	public Integer getTemperature() {
+	public Float getTemperature() {
 		return temperature;
 	}
 
-	public void setTemperature(Integer temperature) {
+	public void setTemperature(Float temperature) {
 		this.temperature = temperature;
 	}
 
-	public Integer getTimetotarget() {
+	public Float getTimetotarget() {
 		return timetotarget;
 	}
 
-	public void setTimetotarget(Integer timetotarget) {
+	public void setTimetotarget(Float timetotarget) {
 		this.timetotarget = timetotarget;
 	}
 
-	public Integer getHumidity() {
+	public Float getHumidity() {
 		return humidity;
 	}
 
-	public void setHumidity(Integer humidity) {
+	public void setHumidity(Float humidity) {
 		this.humidity = humidity;
 	}
 

@@ -1,8 +1,10 @@
 package com.weatherize.mynest.live.streamprocessor.controller;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -19,8 +21,11 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import com.google.cloud.pubsub.v1.Subscriber;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.weatherize.mynest.live.streamprocessor.StreamprocessorApplication;
+import com.weatherize.mynest.live.streamprocessor.model.TemperatureData;
+import com.weatherize.mynest.live.streamprocessor.util.CVSFilesfromAWSS3;
 
 @RestController
 public class NestStreamProcessorController {
@@ -125,6 +130,31 @@ public class NestStreamProcessorController {
 			return buildStatusView("Subscribed.");
 		}
 
+		
+		@GetMapping("/loadfroms3")
+		public RedirectView loadfroms3() {
+			
+			CVSFilesfromAWSS3 csvFilefromAWSS3 = new CVSFilesfromAWSS3();
+			List<TemperatureData> data = csvFilefromAWSS3.GetTemperatureDatafromS3();
+			
+			data.forEach(item -> {
+				
+				if (item != null) {
+				JsonObject json = new JsonObject();
+				json.addProperty("timeofcapture",DateFormat.getInstance().format(item.getTimeofcapture()));
+				json.addProperty("temperature",item.getTemperature());
+				json.addProperty("humidity",item.getHumidity());
+				json.addProperty("timetotarget",item.getTimetotarget());
+				json.addProperty("mode",item.getMode());
+				json.addProperty("hvaccycleon",false);
+				
+				this.template.send("myNestTopic", json.toString());
+				}
+			});
+						
+			
+			return buildStatusView("Load complete.");
+		}
 		private RedirectView buildStatusView(String statusMessage) {
 			RedirectView view = new RedirectView("/");
 			view.addStaticAttribute("statusMessage", statusMessage);

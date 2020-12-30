@@ -1,6 +1,12 @@
 package com.weatherize.mynest.live.feedstore;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +30,8 @@ public class FeedstoreApplication implements CommandLineRunner {
 		SpringApplication.run(FeedstoreApplication.class, args);
 	}
 
-	public int getRandomNumber(int min, int max) {
-	    return (int) ((Math.random() * (max - min)) + min);
+	public Double getRandomNumber(int min, int max) {
+	    return (Double) ((Math.random() * (max - min)) + min);
 	}
 	
 	@Override
@@ -35,12 +41,23 @@ public class FeedstoreApplication implements CommandLineRunner {
 		TemperatureData data = new TemperatureData();
 		
 		
-		data.setHumidity(getRandomNumber(0,100));
-		data.setTemperature(getRandomNumber(0,100));
+		data.setHumidity(getRandomNumber(0,100).floatValue());
+		data.setTemperature(getRandomNumber(0,100).floatValue());
 		data.setHvacCycleOn(false);
-		data.setTimeofcapture(Calendar.getInstance().getTime());
+		
+		DateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		
+		Date date = Calendar.getInstance().getTime();
+
+		DateFormat cstFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		cstFormat.setTimeZone(TimeZone.getTimeZone("CST"));
+
+		data.setTimeofcapture(LocalDateTime.parse(cstFormat.format(date)));
 		data.setMode("Heat");
-		data.setTimetotarget(getRandomNumber(0,30));
+		data.setTimetotarget(getRandomNumber(0,30).floatValue());
+		
+		logger.info("Saving data - ", LocalDateTime.parse(cstFormat.format(date)));
 
 		myNestThermostatLiveRepository.save(data);
 
