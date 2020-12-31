@@ -1,5 +1,6 @@
 package com.weatherize.mynest.live.feedstore.model;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 
 public class FeedResponse<T>{
@@ -7,8 +8,6 @@ public class FeedResponse<T>{
 	List<T> values;
 	
 	String cursorMark;
-	int size;
-	int number;
 	
 	
 	public FeedResponse() {
@@ -19,8 +18,7 @@ public class FeedResponse<T>{
 
 	@Override
 	public String toString() {
-		return "NestResponse [values=" + values + ", cursorMark=" + cursorMark
-				+ ", size=" + size + ", number=" + number + "]";
+		return "FeedResponse [values=" + values + ", cursorMark=" + cursorMark + "]";
 	}
 
 
@@ -44,32 +42,10 @@ public class FeedResponse<T>{
 	}
 
 
-	public int getSize() {
-		return size;
-	}
-
-
-	public void setSize(int size) {
-		this.size = size;
-	}
-
-
-	public int getNumber() {
-		return number;
-	}
-
-
-	public void setNumber(int number) {
-		this.number = number;
-	}
-
-
-	public FeedResponse(List<T> values, String cursorMark, int size, int number) {
+	public FeedResponse(List<T> values, String cursorMark) {
 		super();
 		this.values = values;
 		this.cursorMark = cursorMark;
-		this.size = size;
-		this.number = number;
 	}
 	
 }

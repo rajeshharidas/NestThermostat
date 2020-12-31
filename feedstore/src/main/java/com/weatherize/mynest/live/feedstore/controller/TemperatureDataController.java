@@ -1,5 +1,6 @@
 package com.weatherize.mynest.live.feedstore.controller;
 
+import java.nio.ByteBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.cassandra.core.query.CassandraPageRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.datastax.driver.core.PagingState;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.weatherize.mynest.live.feedstore.model.FeedResponse;
@@ -46,22 +49,25 @@ public class TemperatureDataController {
 
 	private static final Logger logger = LoggerFactory.getLogger(TemperatureDataController.class);
 
+	private static final String DEFAULT_CURSOR_MARK = "-1";
+	
 	@Autowired
 	MyNestThermostatLiveRepository thermostatRepository;
 
 	@GetMapping("/temperaturedata")
-	public ResponseEntity<FeedResponse<TemperatureData>> getAllTemperatureData(@RequestParam(defaultValue = "1") int month,
-			@RequestParam(defaultValue = "2020") int year) {
+	public ResponseEntity<FeedResponse<TemperatureData>> getAllTemperatureData(@RequestParam (defaultValue="") String pagingState) {
 		try {
 			List<TemperatureData> temperatureData = new ArrayList<TemperatureData>();
 			
 			FeedResponse<TemperatureData> nestResponse = new FeedResponse<TemperatureData>();
+						
+		    final PageRequest pageRequest = PageRequest.of(0, 50);
 			
-			Pageable pageable = CassandraPageRequest.of(PageRequest.of(0, 50), null);
+			Pageable pageable = CassandraPageRequest.of(pageRequest,DEFAULT_CURSOR_MARK.equalsIgnoreCase(pagingState) ? null : ByteBuffer.wrap(PagingState.fromString(pagingState).toBytes()));
 			 
 			Slice<TemperatureData> pageData = thermostatRepository.findAll(pageable);
 			
-			
+
 			if (pageData.isLast())
 			{
 				nestResponse.setCusorMark("-1");
@@ -69,8 +75,6 @@ public class TemperatureDataController {
 			else {
 				nestResponse.setCusorMark(((CassandraPageRequest)pageData.getPageable()).getPagingState().toString());
 			}
-			nestResponse.setNumber(pageData.getNumber());
-			nestResponse.setSize(pageData.getSize());
 			
 			pageData.forEach(temperatureData::add);
 			nestResponse.setValues(temperatureData);
@@ -86,7 +90,8 @@ public class TemperatureDataController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-
+	
+	
 	@GetMapping("/temperaturedata/{timeofcapture}")
 	public ResponseEntity<TemperatureData> getTemperatureData(@PathVariable("timeofcapture") Date timeStamp) {
 		Optional<TemperatureData> temperatureData = thermostatRepository.findById(timeStamp);
