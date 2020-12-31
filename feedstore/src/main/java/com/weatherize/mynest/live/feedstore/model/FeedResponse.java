@@ -6,8 +6,7 @@ public class FeedResponse<T>{
 	
 	List<T> values;
 	
-	long totalElements;
-	int totalPages;
+	String cursorMark;
 	int size;
 	int number;
 	
@@ -20,7 +19,7 @@ public class FeedResponse<T>{
 
 	@Override
 	public String toString() {
-		return "NestResponse [values=" + values + ", totalElements=" + totalElements + ", totalPages=" + totalPages
+		return "NestResponse [values=" + values + ", cursorMark=" + cursorMark
 				+ ", size=" + size + ", number=" + number + "]";
 	}
 
@@ -35,23 +34,13 @@ public class FeedResponse<T>{
 	}
 
 
-	public long getTotalElements() {
-		return totalElements;
+	public String getCursorMark() {
+		return cursorMark;
 	}
 
 
-	public void setTotalElements(long totalElements) {
-		this.totalElements = totalElements;
-	}
-
-
-	public int getTotalPages() {
-		return totalPages;
-	}
-
-
-	public void setTotalPages(int totalPages) {
-		this.totalPages = totalPages;
+	public void setCusorMark(String cursorMark) {
+		this.cursorMark = cursorMark;
 	}
 
 
@@ -75,11 +64,10 @@ public class FeedResponse<T>{
 	}
 
 
-	public FeedResponse(List<T> values, long totalElements, int totalPages, int size, int number) {
+	public FeedResponse(List<T> values, String cursorMark, int size, int number) {
 		super();
 		this.values = values;
-		this.totalElements = totalElements;
-		this.totalPages = totalPages;
+		this.cursorMark = cursorMark;
 		this.size = size;
 		this.number = number;
 	}

@@ -14,7 +14,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.data.cassandra.core.query.CassandraPageRequest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -50,19 +50,27 @@ public class TemperatureDataController {
 	MyNestThermostatLiveRepository thermostatRepository;
 
 	@GetMapping("/temperaturedata")
-	public ResponseEntity<FeedResponse<TemperatureData>> getAllTemperatureData(@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "15") int size) {
+	public ResponseEntity<FeedResponse<TemperatureData>> getAllTemperatureData(@RequestParam(defaultValue = "1") int month,
+			@RequestParam(defaultValue = "2020") int year) {
 		try {
 			List<TemperatureData> temperatureData = new ArrayList<TemperatureData>();
-
-			List<TemperatureData> pageData = thermostatRepository.findAll();
 			
 			FeedResponse<TemperatureData> nestResponse = new FeedResponse<TemperatureData>();
 			
-			nestResponse.setTotalElements(pageData.size());
-			nestResponse.setNumber(0);
-			nestResponse.setTotalPages(pageData.size());
-			nestResponse.setSize(pageData.size());
+			Pageable pageable = CassandraPageRequest.of(PageRequest.of(0, 50), null);
+			 
+			Slice<TemperatureData> pageData = thermostatRepository.findAll(pageable);
+			
+			
+			if (pageData.isLast())
+			{
+				nestResponse.setCusorMark("-1");
+			}
+			else {
+				nestResponse.setCusorMark(((CassandraPageRequest)pageData.getPageable()).getPagingState().toString());
+			}
+			nestResponse.setNumber(pageData.getNumber());
+			nestResponse.setSize(pageData.getSize());
 			
 			pageData.forEach(temperatureData::add);
 			nestResponse.setValues(temperatureData);
@@ -74,6 +82,7 @@ public class TemperatureDataController {
 
 			return new ResponseEntity<>(nestResponse, HttpStatus.OK);
 		} catch (Exception e) {
+			logger.error(e.getMessage());
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -170,6 +179,7 @@ public class TemperatureDataController {
 			try {
 				logger.info("Converted json object: " + convertedObject.toString());
 				TemperatureData tempData = new TemperatureData();
+				tempData.setDatasetid(0);
 				tempData.setHumidity(convertedObject.get("humidity").getAsFloat());
 				tempData.setTemperature(convertedObject.get("temperature").getAsFloat());
 				
@@ -177,6 +187,8 @@ public class TemperatureDataController {
 				cstFormat.setTimeZone(TimeZone.getTimeZone("CST"));
 				LocalDateTime date = convertToLocalDateTimeViaInstant(cstFormat.parse(convertedObject.get("timeofcapture").getAsString()));
 				tempData.setTimeofcapture(date);
+				tempData.setMonth(date.getMonthValue());
+				tempData.setYear(date.getYear());
 				tempData.setMode(convertedObject.get("mode").getAsString());
 				tempData.setHvacCycleOn(convertedObject.get("hvaccycleon").getAsBoolean());
 				tempData.setTimetotarget(convertedObject.get("timetotarget").getAsFloat());

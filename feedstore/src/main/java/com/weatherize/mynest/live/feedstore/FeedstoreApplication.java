@@ -2,7 +2,6 @@ package com.weatherize.mynest.live.feedstore;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
@@ -40,7 +39,7 @@ public class FeedstoreApplication implements CommandLineRunner {
 
 		TemperatureData data = new TemperatureData();
 		
-		
+		data.setDatasetid(0);
 		data.setHumidity(getRandomNumber(0,100).floatValue());
 		data.setTemperature(getRandomNumber(0,100).floatValue());
 		data.setHvacCycleOn(false);
@@ -55,6 +54,8 @@ public class FeedstoreApplication implements CommandLineRunner {
 
 		data.setTimeofcapture(LocalDateTime.parse(cstFormat.format(date)));
 		data.setMode("Heat");
+		data.setMonth(12);
+		data.setYear(2020);
 		data.setTimetotarget(getRandomNumber(0,30).floatValue());
 		
 		logger.info("Saving data - ", LocalDateTime.parse(cstFormat.format(date)));
