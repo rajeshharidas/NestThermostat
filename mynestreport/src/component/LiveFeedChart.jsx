@@ -7,7 +7,6 @@ import Moment from 'moment';
 import React from 'react';
 import LiveFeedService from '../service/liveFeedService'
 import Chart from "react-google-charts";
-import Pagination from "react-js-pagination";
 
 class LiveFeedChart extends React.Component {
 
@@ -20,15 +19,14 @@ class LiveFeedChart extends React.Component {
 					{ type: 'number', id: 'Temperature' },
 					{ type: 'number', id: 'Humidity' }
 				]
-			],
-			paging: { pageSize: 0, currentPage: 1, itemCount: 0, pageCount: 0 }
+			]
 		};
 		this.loadSensorData = this.loadSensorData.bind(this);
-		this.loadSensorData(0);
+		this.loadSensorData();
 	}
 
-	loadSensorData(pageNumber) {
-		LiveFeedService.retrieveAllSensorData(pageNumber,100)
+	loadSensorData() {
+		LiveFeedService.retrieveAllSensorData()
 			.then(response => {
 
 				const sensordatas = Array.from(response.data.values);
@@ -46,38 +44,28 @@ class LiveFeedChart extends React.Component {
 					var chartDataRow = [];
 					var datetime = Moment(element.timeofcapture).toDate();
 					chartDataRow.push(datetime);
-					chartDataRow.push(element.temperature);
-					chartDataRow.push(element.humidity);
+					chartDataRow.push(parseFloat(element.temperature));
+					chartDataRow.push(parseFloat(element.humidity));
 					if (element.temperature !== "" && element.humidity !== "")
 						sensorDataArray.push(chartDataRow);
 				});
 
-				var pagingInfo = {
-					pageSize: response.data.size,
-					pageCount: response.data.totalPages,
-					currentPage: response.data.number + 1,
-					itemCount: response.data.totalElements
-				}
-
 				this.setState({
-					sensorMapData: sensorDataArray,
-					paging: pagingInfo
+					sensorMapData: sensorDataArray
 				});
 
 				console.log("Service data", sensordatas);
 				console.log("Heat map data", sensorDataArray);
-				console.log("Paging data", pagingInfo);
 			}
 			);
 	}
 
-	handlePageChange(pageNumber) {
-		console.log('active page is', pageNumber);
-		this.setState({ currentPageNumber: pageNumber });
-		this.loadSensorData(pageNumber - 1);
+	handlePageChange(data) {
+		this.loadSensorData();
 	}
 
 	render() {
+				
 		return (
 			<div>
 				<div>
@@ -117,15 +105,6 @@ class LiveFeedChart extends React.Component {
 					/>
 				</div>
 				<br></br>
-				<div>
-					<Pagination itemClass="page-item" linkClass="page-link"
-						activePage={this.state.paging.currentPage}
-						itemsCountPerPage={100}
-						totalItemsCount={this.state.paging.itemCount}
-						pageRangeDisplayed={this.state.paging.pageSize}
-						onChange={this.handlePageChange.bind(this)}
-					/>
-				</div>
 			</div>
 		);
 	}

@@ -116,7 +116,6 @@ class SensorDataChart extends React.Component {
 						rootProps={{ 'data-testid': '2' }}
 					/>
 				</div>
-				<br></br>
 				<div>
 					<Pagination itemClass="page-item" linkClass="page-link"
 						activePage={this.state.paging.currentPage}

@@ -1,6 +1,5 @@
 package com.weatherize.mynest.live.feedstore.controller;
 
-import java.nio.ByteBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -16,11 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.cassandra.core.query.CassandraPageRequest;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -32,10 +29,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.datastax.driver.core.PagingState;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.weatherize.mynest.live.feedstore.model.FeedResponse;
@@ -49,36 +44,39 @@ public class TemperatureDataController {
 
 	private static final Logger logger = LoggerFactory.getLogger(TemperatureDataController.class);
 
-	private static final String DEFAULT_CURSOR_MARK = "-1";
-	
 	@Autowired
 	MyNestThermostatLiveRepository thermostatRepository;
 
 	@GetMapping("/temperaturedata")
-	public ResponseEntity<FeedResponse<TemperatureData>> getAllTemperatureData(@RequestParam (defaultValue="") String pagingState) {
+	public ResponseEntity<FeedResponse<TemperatureData>> getAllTemperatureData() {
 		try {
 			List<TemperatureData> temperatureData = new ArrayList<TemperatureData>();
-			
+
 			FeedResponse<TemperatureData> nestResponse = new FeedResponse<TemperatureData>();
-						
-		    final PageRequest pageRequest = PageRequest.of(0, 50);
-			
-			Pageable pageable = CassandraPageRequest.of(pageRequest,DEFAULT_CURSOR_MARK.equalsIgnoreCase(pagingState) ? null : ByteBuffer.wrap(PagingState.fromString(pagingState).toBytes()));
-			 
-			Slice<TemperatureData> pageData = thermostatRepository.findAll(pageable);
-			
 
-			if (pageData.isLast())
-			{
-				nestResponse.setCusorMark("-1");
-			}
-			else {
-				nestResponse.setCusorMark(((CassandraPageRequest)pageData.getPageable()).getPagingState().toString());
-			}
-			
+			final PageRequest pageRequest = PageRequest.of(0, 1000);
+
+			Pageable pageable = CassandraPageRequest.of(pageRequest, null);
+
+			Slice<TemperatureData> pageData = thermostatRepository.findByDatasetidOrderByTimeofcaptureDesc(0, pageable);
+
 			pageData.forEach(temperatureData::add);
-			nestResponse.setValues(temperatureData);
 
+			do {
+
+				// consume slice
+				if (pageData.hasNext()) {
+					pageable = pageData.nextPageable();
+					pageData = thermostatRepository.findByDatasetidOrderByTimeofcaptureDesc(0, pageable);
+					pageData.forEach(temperatureData::add);
+
+				} else {
+					break;
+				}
+			} while (!pageData.getContent().isEmpty());
+		
+
+			nestResponse.setValues(temperatureData);
 
 			if (temperatureData.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -90,8 +88,7 @@ public class TemperatureDataController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
+
 	@GetMapping("/temperaturedata/{timeofcapture}")
 	public ResponseEntity<TemperatureData> getTemperatureData(@PathVariable("timeofcapture") Date timeStamp) {
 		Optional<TemperatureData> temperatureData = thermostatRepository.findById(timeStamp);
@@ -165,45 +162,41 @@ public class TemperatureDataController {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	public LocalDateTime convertToLocalDateTimeViaInstant(Date dateToConvert) {
-	    return dateToConvert.toInstant()
-	      .atZone(ZoneId.systemDefault())
-	      .toLocalDateTime();
-	}
 
+	public LocalDateTime convertToLocalDateTimeViaInstant(Date dateToConvert) {
+		return dateToConvert.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+	}
 
 	@KafkaListener(topics = "myNestTopic")
 	public void listen(ConsumerRecord<?, ?> cr) throws Exception {
 		String json = cr.value().toString();
 		logger.info("Incoming json string from nest kafka topic: " + json);
 		JsonObject convertedObject = new Gson().fromJson(json, JsonObject.class);
-		
-		if (convertedObject.isJsonObject())
-		{
+
+		if (convertedObject.isJsonObject()) {
 			try {
 				logger.info("Converted json object: " + convertedObject.toString());
 				TemperatureData tempData = new TemperatureData();
 				tempData.setDatasetid(0);
 				tempData.setHumidity(convertedObject.get("humidity").getAsFloat());
 				tempData.setTemperature(convertedObject.get("temperature").getAsFloat());
-				
+
 				DateFormat cstFormat = new SimpleDateFormat("MM/dd/yy','HH:mm a");
 				cstFormat.setTimeZone(TimeZone.getTimeZone("CST"));
-				LocalDateTime date = convertToLocalDateTimeViaInstant(cstFormat.parse(convertedObject.get("timeofcapture").getAsString()));
+				LocalDateTime date = convertToLocalDateTimeViaInstant(
+						cstFormat.parse(convertedObject.get("timeofcapture").getAsString()));
 				tempData.setTimeofcapture(date);
 				tempData.setMonth(date.getMonthValue());
 				tempData.setYear(date.getYear());
 				tempData.setMode(convertedObject.get("mode").getAsString());
 				tempData.setHvacCycleOn(convertedObject.get("hvaccycleon").getAsBoolean());
 				tempData.setTimetotarget(convertedObject.get("timetotarget").getAsFloat());
-				
+
 				logger.info("Saving data - ", date);
 
-				
 				TemperatureData _temperatureData = thermostatRepository.save(tempData);
 				logger.info("Parsed json string as Temperature object: " + _temperatureData.toString());
-				
+
 			} catch (Exception e) {
 				logger.error("Kafka Listener error: " + e.getMessage());
 			}

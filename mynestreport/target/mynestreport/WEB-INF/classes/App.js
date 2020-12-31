@@ -23,7 +23,7 @@ class App extends Component {
 							<TabList class='react-tabs__tab-list'>
 								<Tab class='react-tabs__tab'><Link to="/">Time Series</Link></Tab>
 								<Tab class='react-tabs__tab'><Link to="/sensor">Sensor Chart</Link></Tab>
-								<Tab class='react-tabs__tab'><Link to="/sensor">Live Chart</Link></Tab>
+								<Tab class='react-tabs__tab'><Link to="/live">Live Chart</Link></Tab>
 							</TabList>
 
 							<TabPanel>
@@ -33,7 +33,7 @@ class App extends Component {
 								<Route path="/sensor" component={SensorDataMap} />
 							</TabPanel>
 							<TabPanel>
-								<Route path="/sensor" component={LiveDataMap} />
+								<Route path="/live" component={LiveDataMap} />
 							</TabPanel>
 						</Tabs>					
 					</BrowserRouter>

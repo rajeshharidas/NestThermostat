@@ -170,3 +170,10 @@
 .react-tabs__tab-panel--selected {
   display: block;
 }
+
+.morebutton {
+    background-color: #fff;
+    color: #555;
+    border: 1px solid #ddd;
+    cursor: default;
+}

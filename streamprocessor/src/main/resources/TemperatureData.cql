@@ -8,5 +8,5 @@ humidity FLOAT,
 timetotarget FLOAT,
 mode TEXT,
 hvaccycleon BOOLEAN,
-primary key((datasetid),year,month,timeofcapture)
-) WITH CLUSTERING ORDER BY (year DESC, month DESC, timeofcapture DESC);
+primary key((datasetid),timeofcapture)
+) WITH CLUSTERING ORDER BY (timeofcapture DESC);

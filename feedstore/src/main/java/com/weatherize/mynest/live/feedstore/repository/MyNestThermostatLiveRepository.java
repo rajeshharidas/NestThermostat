@@ -17,5 +17,5 @@ public interface MyNestThermostatLiveRepository extends CassandraRepository<Temp
 	@AllowFiltering
 	List<TemperatureData> findByHvacCycleOn(boolean hvacCycleOn);
 
-	Slice<TemperatureData> findAll(Pageable pageable);
+	Slice<TemperatureData> findByDatasetidOrderByTimeofcaptureDesc(int datasetid,Pageable pageable);
 }
