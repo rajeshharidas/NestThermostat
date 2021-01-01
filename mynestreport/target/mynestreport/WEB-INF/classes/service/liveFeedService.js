@@ -11,7 +11,7 @@ const SENSORDATASERVICE_API_URL = `${BASE_API_URL}/feedstore/dataapi/temperature
 class LiveFeedService {
 
     retrieveAllSensorData() {
-        return axios.get(`${SENSORDATASERVICE_API_URL}?size=1000`);		
+        return axios.get(`${SENSORDATASERVICE_API_URL}`);		
     }
 }
 
