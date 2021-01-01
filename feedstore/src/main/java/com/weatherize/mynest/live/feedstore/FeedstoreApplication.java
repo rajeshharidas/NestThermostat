@@ -60,7 +60,7 @@ public class FeedstoreApplication implements CommandLineRunner {
 		
 		logger.info("Saving data - ", LocalDateTime.parse(cstFormat.format(date)));
 
-		myNestThermostatLiveRepository.save(data);
+		//myNestThermostatLiveRepository.save(data);
 
 		var thermostatEntries = myNestThermostatLiveRepository.findAll();
 

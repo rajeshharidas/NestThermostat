@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -49,6 +50,7 @@ public class CVSFilesfromAWSS3 {
 
             ListObjectsV2Request req = new ListObjectsV2Request().withBucketName(bucketName).withMaxKeys(2);
             ListObjectsV2Result result;
+            FileWriter fw = new FileWriter("/tmp/keys.txt");
 
             do {
                 result = s3Client.listObjectsV2(req);
@@ -59,6 +61,8 @@ public class CVSFilesfromAWSS3 {
                     try {
                     	
                     	if (!objectSummary.getKey().endsWith(".csv")) continue;
+                    	
+                    	fw.write(objectSummary.getKey() + " \n");
                     	
                         S3Object o = s3Client.getObject(bucketName, objectSummary.getKey());
                         S3ObjectInputStream s3is = o.getObjectContent();
@@ -88,7 +92,7 @@ public class CVSFilesfromAWSS3 {
                         BufferedReader bif = new BufferedReader(sr);
                                                 
                         CsvReader csvReader = new CsvReader(",");
-                        sensorData = csvReader.loadCsvContentToList(bif);
+                        sensorData.addAll(csvReader.loadCsvContentToList(bif));
                         bif.close();
                         
                     } catch (AmazonServiceException e) {
@@ -109,6 +113,9 @@ public class CVSFilesfromAWSS3 {
                 System.out.println("Next Continuation Token: " + token);
                 req.setContinuationToken(token);
             } while (result.isTruncated());
+            
+            fw.close();
+            
         } catch (AmazonServiceException e) {
             // The call was transmitted successfully, but Amazon S3 couldn't process 
             // it, so it returned an error response.
@@ -117,6 +124,8 @@ public class CVSFilesfromAWSS3 {
             // Amazon S3 couldn't be contacted for a response, or the client
             // couldn't parse the response from Amazon S3.
             e.printStackTrace();
+        } catch (IOException e) {
+        	e.printStackTrace();
         }
 		
 		return sensorData;

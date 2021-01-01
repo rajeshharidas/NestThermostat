@@ -54,7 +54,7 @@ public class TemperatureDataController {
 
 			FeedResponse<TemperatureData> nestResponse = new FeedResponse<TemperatureData>();
 
-			final PageRequest pageRequest = PageRequest.of(0, 1000);
+			final PageRequest pageRequest = PageRequest.of(0, 5000);
 
 			Pageable pageable = CassandraPageRequest.of(pageRequest, null);
 

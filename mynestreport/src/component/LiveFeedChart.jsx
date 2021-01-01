@@ -80,7 +80,7 @@ class LiveFeedChart extends React.Component {
 								title:
 									'Average Temperatures and Humidity Throughout the Year',
 							},
-							width: 1000,
+							width: 2000,
 							height: 800,
 							hAxis: {
 								format: 'MM/dd/yyyy hh:mm a',
