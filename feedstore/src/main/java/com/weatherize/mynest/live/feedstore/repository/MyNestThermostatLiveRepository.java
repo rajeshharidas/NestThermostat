@@ -3,6 +3,7 @@ package com.weatherize.mynest.live.feedstore.repository;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.cassandra.repository.AllowFiltering;
 import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,6 @@ public interface MyNestThermostatLiveRepository extends CassandraRepository<Temp
 
 	@AllowFiltering
 	List<TemperatureData> findByHvacCycleOn(boolean hvacCycleOn);
-
+	
 	Slice<TemperatureData> findByDatasetidOrderByTimeofcaptureDesc(int datasetid,Pageable pageable);
 }

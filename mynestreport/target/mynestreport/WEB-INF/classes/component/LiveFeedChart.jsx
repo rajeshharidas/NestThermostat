@@ -76,37 +76,42 @@ class LiveFeedChart extends React.Component {
 						loader={<div>Loading Chart</div>}
 						data={this.state.sensorMapData}
 						options={{
-						chart: {
-							title:
-								'Average Temperatures and Humidity Throughout the Year',
-						},
-						width: 1280,
-						height: 800,
-						explorer:{
-							actions:['dragToZoom', 'rightClickToReset'],
-        					axis: 'horizontal',
-        					keepInBounds: true,
-        					maxZoomIn: 8.0
-						},
-						hAxis: {
-							format: 'MM/dd/yyyy hh:mm a',
-							gridlines: { count: 15 },
-						},
-						vAxis: {
-							title: 'Sensor',
-						},
-						series: {
-							0: { axis: 'Temps', curveType: 'function' },
-							1: { axis: 'Humidity', curveType: 'function' },
-						},
-						axes: {
-							// Adds labels to each axis; they don't have to match the axis names.
-							y: {
-								Temps: { label: 'Temps (Celsius)' },
-								Humidity: { label: 'Humidity' },
+							chart: {
+								title:
+									'Average Temperatures and Humidity Throughout the Year',
 							},
-						},
-					}}
+							width: 1280,
+							height: 800,
+							explorer: {
+								actions: ['dragToZoom', 'rightClickToReset'],
+								axis: 'horizontal',
+								keepInBounds: true,
+								maxZoomIn: 8.0
+							},
+							hAxis: {
+								format: 'MM/dd/yyyy hh:mm a',
+								gridlines: { count: 15 },
+							},
+							vAxis: {
+								title: 'Sensor',
+							},
+							series: {
+								0: { axis: 'Temps', curveType: 'function' },
+								1: { axis: 'Humidity', curveType: 'function' },
+							},
+							crosshair: {
+								color: '#000',
+								trigger: 'selection'
+							},
+							axes: {
+								// Adds labels to each axis; they don't have to match the axis names.
+								y: {
+									Temps: { label: 'Temps (Celsius)' },
+									Humidity: { label: 'Humidity' },
+								},
+							},
+
+						}}
 						rootProps={{ 'data-testid': '2' }}
 					/>
 				</div>

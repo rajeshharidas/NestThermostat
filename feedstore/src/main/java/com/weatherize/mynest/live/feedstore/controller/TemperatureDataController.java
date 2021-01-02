@@ -36,6 +36,7 @@ import com.google.gson.JsonObject;
 import com.weatherize.mynest.live.feedstore.model.FeedResponse;
 import com.weatherize.mynest.live.feedstore.model.TemperatureData;
 import com.weatherize.mynest.live.feedstore.repository.MyNestThermostatLiveRepository;
+import com.weatherize.mynest.live.feedstore.service.TemperatureDataService;
 
 @CrossOrigin(origins = "http://localhost:8085")
 @RestController
@@ -46,41 +47,24 @@ public class TemperatureDataController {
 
 	@Autowired
 	MyNestThermostatLiveRepository thermostatRepository;
+	
+	@Autowired
+	TemperatureDataService temperatureDataService;
 
 	@GetMapping("/temperaturedata")
 	public ResponseEntity<FeedResponse<TemperatureData>> getAllTemperatureData() {
 		try {
-			List<TemperatureData> temperatureData = new ArrayList<TemperatureData>();
-
+			
 			FeedResponse<TemperatureData> nestResponse = new FeedResponse<TemperatureData>();
 
-			final PageRequest pageRequest = PageRequest.of(0, 5000);
-
-			Pageable pageable = CassandraPageRequest.of(pageRequest, null);
-
-			Slice<TemperatureData> pageData = thermostatRepository.findByDatasetidOrderByTimeofcaptureDesc(0, pageable);
-
-			pageData.forEach(temperatureData::add);
-
-			do {
-
-				// consume slice
-				if (pageData.hasNext()) {
-					pageable = pageData.nextPageable();
-					pageData = thermostatRepository.findByDatasetidOrderByTimeofcaptureDesc(0, pageable);
-					pageData.forEach(temperatureData::add);
-
-				} else {
-					break;
-				}
-			} while (!pageData.getContent().isEmpty());
-		
-
-			nestResponse.setValues(temperatureData);
+			List<TemperatureData> temperatureData = temperatureDataService.GetAllTemperatureData();
 
 			if (temperatureData.isEmpty()) {
+				logger.info("No data");
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
+			logger.info("Return data from controller!");
+			nestResponse.setValues(temperatureData);
 
 			return new ResponseEntity<>(nestResponse, HttpStatus.OK);
 		} catch (Exception e) {

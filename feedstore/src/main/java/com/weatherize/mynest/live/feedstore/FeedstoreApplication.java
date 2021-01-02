@@ -13,11 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Bean;
 
 import com.weatherize.mynest.live.feedstore.model.TemperatureData;
 import com.weatherize.mynest.live.feedstore.repository.MyNestThermostatLiveRepository;
 
 @SpringBootApplication
+@EnableCaching
 public class FeedstoreApplication implements CommandLineRunner {
 
 	@Autowired
@@ -31,7 +34,7 @@ public class FeedstoreApplication implements CommandLineRunner {
 
 	public Double getRandomNumber(int min, int max) {
 	    return (Double) ((Math.random() * (max - min)) + min);
-	}
+	}	
 	
 	@Override
 	public void run(String... args) throws Exception {

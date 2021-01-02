@@ -31,7 +31,7 @@ public class StreamprocessorApplication implements CommandLineRunner {
 	}
 	
 	public void run(String... args) throws Exception {
-		nestStream.loadfroms3();		
+		//nestStream.loadfroms3();		
 	}
 
 	

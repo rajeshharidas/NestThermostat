@@ -28,7 +28,7 @@ class SensorDataChart extends React.Component {
 	}
 
 	loadSensorData(pageNumber) {
-		SensorDataService.retrieveAllSensorData(pageNumber,100)
+		SensorDataService.retrieveAllSensorData(pageNumber, 100)
 			.then(response => {
 
 				const sensordatas = Array.from(response.data.values);
@@ -100,6 +100,16 @@ class SensorDataChart extends React.Component {
 							},
 							vAxis: {
 								title: 'Sensor',
+							},
+							explorer: {
+								actions: ['dragToZoom', 'rightClickToReset'],
+								axis: 'horizontal',
+								keepInBounds: true,
+								maxZoomIn: 8.0
+							},
+							crosshair: {
+								color: '#000',
+								trigger: 'selection'
 							},
 							series: {
 								0: { axis: 'Temps', curveType: 'function' },

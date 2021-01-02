@@ -51,7 +51,7 @@ public class SensorDataController {
 			pageData.forEach(entries::add);
 			nestResponse.setValues(entries);
 			
-			logger.info("Reached here!!!");
+			logger.info("Sensor data from mongodb");
 
 			if (entries.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
