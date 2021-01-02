@@ -8,6 +8,9 @@ import React from 'react';
 import LiveFeedService from '../service/liveFeedService'
 import Chart from "react-google-charts";
 
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
+import Loader from 'react-loader-spinner'
+
 class LiveFeedChart extends React.Component {
 
 	constructor(props) {
@@ -115,7 +118,16 @@ class LiveFeedChart extends React.Component {
 						rootProps={{ 'data-testid': '2' }}
 					/>
 				</div>
-				<br></br>
+				<div class="overlay-box">
+					<Loader
+						type="Puff"
+						color="#00BFFF"
+						height={100}
+						width={100}
+						timeout={5000} //3 secs
+					/>
+
+				</div>
 			</div>
 		);
 	}

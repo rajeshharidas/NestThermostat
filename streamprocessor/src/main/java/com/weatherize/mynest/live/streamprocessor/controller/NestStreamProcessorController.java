@@ -130,7 +130,7 @@ public class NestStreamProcessorController {
 			return buildStatusView("Subscribed.");
 		}
 
-		
+		/*
 		@GetMapping("/loadfroms3")
 		public RedirectView loadfroms3() {
 			
@@ -155,6 +155,8 @@ public class NestStreamProcessorController {
 			
 			return buildStatusView("Load complete.");
 		}
+		*/
+		
 		private RedirectView buildStatusView(String statusMessage) {
 			RedirectView view = new RedirectView("/");
 			view.addStaticAttribute("statusMessage", statusMessage);
