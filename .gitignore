@@ -1,2 +1,3 @@
 eclipse-workspace/
 playground.mongodb
+streamprocessor/src/main/resources/gcpconfig.properties

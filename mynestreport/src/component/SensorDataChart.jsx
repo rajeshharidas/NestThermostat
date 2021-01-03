@@ -46,7 +46,12 @@ class SensorDataChart extends React.Component {
 					var chartDataRow = [];
 					var datetime = Moment(element.timestamp).toDate();
 					chartDataRow.push(datetime);
-					chartDataRow.push(element.avgTemp);
+					
+					var temp = parseFloat(element.avgTemp);
+					temp = (temp * (9/5)) + 32; 
+					console.log(temp);
+							
+					chartDataRow.push(temp);
 					chartDataRow.push(element.avgHumidity);
 					if (element.avgTemp !== "" && element.avgHumidity !== "")
 						sensorDataArray.push(chartDataRow);

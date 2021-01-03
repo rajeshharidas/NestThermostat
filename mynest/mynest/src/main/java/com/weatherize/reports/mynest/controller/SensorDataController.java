@@ -48,7 +48,10 @@ public class SensorDataController {
 			nestResponse.setTotalPages(pageData.getTotalPages());
 			nestResponse.setSize(pageData.getSize());
 			
-			pageData.forEach(entries::add);
+			pageData.forEach(data -> {
+				if (data.getAvgTemp() != null && data.getAvgHumidity() != null)
+					entries.add(data);
+			});
 			nestResponse.setValues(entries);
 			
 			logger.info("Sensor data from mongodb");

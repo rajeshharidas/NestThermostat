@@ -24,8 +24,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.weatherize.mynest.live.streamprocessor.StreamprocessorApplication;
+import com.weatherize.mynest.live.streamprocessor.config.GCPConfig;
+import com.weatherize.mynest.live.streamprocessor.model.DeviceEvent;
 import com.weatherize.mynest.live.streamprocessor.model.TemperatureData;
 import com.weatherize.mynest.live.streamprocessor.util.CVSFilesfromAWSS3;
+import com.weatherize.mynest.live.streamprocessor.util.GCloudUtil;
 
 @RestController
 public class NestStreamProcessorController {
@@ -38,6 +41,12 @@ public class NestStreamProcessorController {
 		private final ArrayList<Subscriber> allSubscribers;
 		
 		@Autowired
+		private GCPConfig gcpConfig;
+		
+		@Autowired
+		private GCloudUtil gcpUtility;
+		
+		@Autowired
 		private KafkaTemplate<String, String> template;
 
 
@@ -46,16 +55,6 @@ public class NestStreamProcessorController {
 			this.allSubscribers = new ArrayList<>();
 		}
 
-
-		@GetMapping("/postMessage")
-		public RedirectView publish(@RequestParam("topicName") String topicName,
-				@RequestParam("message") String message, @RequestParam("count") int messageCount) {
-			for (int i = 0; i < messageCount; i++) {
-				this.pubSubTemplate.publish(topicName, message);
-			}
-
-			return buildStatusView("Messages published asynchronously; status unknown.");
-		}
 
 		@GetMapping("/pull")
 		public RedirectView pull(@RequestParam("subscription1") String subscriptionName) {
@@ -109,19 +108,18 @@ public class NestStreamProcessorController {
 		}
 
 		@GetMapping("/subscribe")
-		public RedirectView subscribe(@RequestParam("subscription") String subscriptionName) {
-			Subscriber subscriber = this.pubSubTemplate.subscribe(subscriptionName, (message) -> {
+		public RedirectView subscribe() {
+			
+			Subscriber subscriber = this.pubSubTemplate.subscribe(gcpConfig.getSdmDeviceSubscription(), (message) -> {
 
 				String json = message.getPubsubMessage().getData().toStringUtf8();
 
-				LOGGER.info("Message received from " + subscriptionName + " subscription: "
+				LOGGER.info("Message received from " + gcpConfig.getSdmDeviceSubscription() + " subscription: "
 						+ json);
 				
-				JsonObject convertedObject = new Gson().fromJson(json, JsonObject.class);
-				if (convertedObject.isJsonObject()) {
-					//Transform into another payload
-					this.template.send("myNestTopic", json);
-				}
+				DeviceEvent deviceEvent = gcpUtility.GetSDMDeviceEvent(json);
+				String convertedObject = new Gson().toJson(deviceEvent, DeviceEvent.class);
+				this.template.send("myNestTopic", convertedObject);
 				
 				message.ack();
 			});

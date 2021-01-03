@@ -4,13 +4,11 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -32,6 +30,7 @@ public class SensorData {
 
 	private String timestamp;
 	private Date sortTimestamp;
+	
 
 	public SensorData() {
 		super();
@@ -83,6 +82,7 @@ public class SensorData {
 		this.timeCaptured = timeCaptured;
 		this.avgTemp = avgTemp;
 		this.avgHumidity = avgHumidity;
+		
 	}
 
 	public String getId() {
@@ -107,12 +107,12 @@ public class SensorData {
 		this.timestamp = getTimeStamp(this.dateCaptured, this.timeCaptured);
 	}
 
-	public String getAvgTemp() {
+	public String getAvgTemp() {		
 		return avgTemp;
 	}
 
 	public void setAvgTemp(String avgTemp) {
-		this.avgTemp = avgTemp;
+		this.avgTemp = avgTemp;		
 	}
 
 	public String getAvgHumidity() {

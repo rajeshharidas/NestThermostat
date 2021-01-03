@@ -19,7 +19,7 @@ public class TemperatureData {
 	private Float timetotarget;
 	private Float humidity;
 	private boolean hvacCycleOn;
-	private String mode;
+	private String mode;	
 	
 	
 	public TemperatureData(int year, int datasetid, int month, Float temperature, Float timetotarget, Float humidity,
@@ -141,9 +141,11 @@ public class TemperatureData {
 		this.timeofcapture = timeofcapture;
 	}
 
-	public Float getTemperature() {
+	public Float getTemperature() {		
+		temperature = (temperature * (9/5)) + 32; 
 		return temperature;
 	}
+	
 
 	public void setTemperature(Float temperature) {
 		this.temperature = temperature;
