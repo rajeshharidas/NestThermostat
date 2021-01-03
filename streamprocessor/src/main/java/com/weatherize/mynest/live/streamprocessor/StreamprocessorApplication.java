@@ -22,10 +22,6 @@ public class StreamprocessorApplication implements CommandLineRunner {
 	public static Logger logger = LoggerFactory.getLogger(StreamprocessorApplication.class);
 	
 	@Autowired
-	GCPConfig gcpConfig;
-	
-	
-	@Autowired
 	NestStreamProcessorController nestStream;
 	
 	public static void main(String[] args) {

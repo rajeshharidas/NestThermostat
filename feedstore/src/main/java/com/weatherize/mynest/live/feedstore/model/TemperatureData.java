@@ -142,7 +142,6 @@ public class TemperatureData {
 	}
 
 	public Float getTemperature() {		
-		temperature = (temperature * (9/5)) + 32; 
 		return temperature;
 	}
 	

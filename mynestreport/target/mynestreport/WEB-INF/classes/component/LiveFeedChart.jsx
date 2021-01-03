@@ -47,7 +47,12 @@ class LiveFeedChart extends React.Component {
 					var chartDataRow = [];
 					var datetime = Moment(element.timeofcapture).toDate();
 					chartDataRow.push(datetime);
-					chartDataRow.push(parseFloat(element.temperature));
+					
+					var temp = parseFloat(element.temperature);
+					temp = (temp * (9/5)) + 32; 
+					console.log(temp);
+					
+					chartDataRow.push(temp);
 					chartDataRow.push(parseFloat(element.humidity));
 					if (element.temperature !== "" && element.humidity !== "")
 						sensorDataArray.push(chartDataRow);
@@ -109,7 +114,7 @@ class LiveFeedChart extends React.Component {
 							axes: {
 								// Adds labels to each axis; they don't have to match the axis names.
 								y: {
-									Temps: { label: 'Temps (Celsius)' },
+									Temps: { label: 'Temps (Fahrenheit)' },
 									Humidity: { label: 'Humidity' },
 								},
 							},

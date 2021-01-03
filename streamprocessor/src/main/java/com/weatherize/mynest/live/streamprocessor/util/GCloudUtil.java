@@ -1,16 +1,18 @@
 package com.weatherize.mynest.live.streamprocessor.util;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.google.gson.Gson;
@@ -22,7 +24,9 @@ import com.weatherize.mynest.live.streamprocessor.model.DeviceStat;
 
 public class GCloudUtil {
 
-	private String sdmAuthUrl = "https://www.googleapis.com/oauth2/v4/token?client_id={client_id}&client_secret=(client_secret}&grant_type={grant_type}";
+	private static final Logger LOGGER = LoggerFactory.getLogger(GCloudUtil.class);
+
+	private String sdmAuthUrl = "https://www.googleapis.com/oauth2/v4/token";
 	private String sdmDevicesUrl = "https://smartdevicemanagement.googleapis.com/v1/enterprises/{appid}/devices/{deviceid}";
 	
 	@Autowired
@@ -43,17 +47,22 @@ public class GCloudUtil {
 		params.put("client_secret", gcpConfig.getSdmSecret());
 		params.put("grant_type", "authorization_code");
 		params.put("redirect_uri", "https://www.google.com");
+		params.put("code", authCode);
 		
 		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(sdmAuthUrl);
 		for (Map.Entry<String, String> entry : params.entrySet()) {
 		    builder.queryParam(entry.getKey(), entry.getValue());
 		}
-
-		ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET,null, String.class);
+		
+		LOGGER.info("Querying URL: " + builder.toUriString());
+		ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST,null, String.class);
+		
+		LOGGER.info("Response from: " + builder.toUriString() + " " + response.getBody());
 		
 		JsonObject convertedObject = new Gson().fromJson(response.getBody(), JsonObject.class);
 		
 		String authToken = convertedObject.get("access_token").getAsString();
+		LOGGER.info("Auth token: " + authToken);
 		
 		return authToken;
 	}
@@ -65,29 +74,35 @@ public class GCloudUtil {
 		params.put("deviceid", gcpConfig.getSdmDeviceId());
 
 		HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set("Accept", MediaType.APPLICATION_JSON_VALUE);
+        httpHeaders.set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
         httpHeaders.setBearerAuth(authToken);
 		
+		UriComponents builder = UriComponentsBuilder.fromHttpUrl(sdmDevicesUrl).buildAndExpand(params);
+
+		LOGGER.info("Constructing headers for : " + builder.toUriString());
 		
-		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(sdmDevicesUrl);
-		for (Map.Entry<String, String> entry : params.entrySet()) {
-		    builder.queryParam(entry.getKey(), entry.getValue());
-		}
+		HttpEntity<String> headers = new HttpEntity<String>("parameters", httpHeaders);
 
-		RequestEntity<HttpHeaders> headers = new RequestEntity<HttpHeaders>(httpHeaders,HttpMethod.GET,URI.create(sdmDevicesUrl));
-
+		LOGGER.info("Querying Device URL: " + builder.toUriString());
 		ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET,headers, String.class);
 		
 		JsonObject convertedObject = new Gson().fromJson(response.getBody(), JsonObject.class);
 		
 		JsonObject element = convertedObject.getAsJsonObject("traits");
 		
-		float ambientHumidityPercent = element.getAsJsonObject().get("sdm.devices.traits.Humidity").getAsJsonObject().get("ambientHumidityPercent").getAsFloat();
-		String connectivityStatus = element.getAsJsonObject().get("sdm.devices.traits.Connectivity").getAsJsonObject().get("status").getAsString();
-		String fanTimerMode = element.getAsJsonObject().get("sdm.devices.traits.Fan").getAsJsonObject().get("timerMode").getAsString();
-		String thermostatMode = element.getAsJsonObject().get("sdm.devices.traits.ThermostatMode").getAsJsonObject().get("mode").getAsString();
-		String hvacStatus = element.getAsJsonObject().get("sdm.devices.traits.ThermostatHvac").getAsJsonObject().get("status").getAsString();
-		float ambientTemperature = element.getAsJsonObject().get("sdm.devices.traits.Temperature").getAsJsonObject().get("ambientTemperatureCelsius").getAsFloat();
+		JsonElement humidityElement = element.getAsJsonObject().get("sdm.devices.traits.Humidity");
+		JsonElement connectivityElement = element.getAsJsonObject().get("sdm.devices.traits.Connectivity");
+		JsonElement fanTimerElement = element.getAsJsonObject().get("sdm.devices.traits.Fan");
+		JsonElement thermostatElement = element.getAsJsonObject().get("sdm.devices.traits.ThermostatMode");
+		JsonElement hvacElement = element.getAsJsonObject().get("sdm.devices.traits.ThermostatHvac");
+		JsonElement tempElement = element.getAsJsonObject().get("sdm.devices.traits.Temperature");
+		
+		float ambientHumidityPercent = humidityElement != null ? humidityElement.getAsJsonObject().get("ambientHumidityPercent").getAsFloat() : 0;
+		String connectivityStatus = connectivityElement != null ? connectivityElement.getAsJsonObject().get("status").getAsString() : "Unknown";
+		String fanTimerMode = fanTimerElement != null ? fanTimerElement.getAsJsonObject().get("timerMode").getAsString() : "Unknown";
+		String thermostatMode = thermostatElement != null ? thermostatElement.getAsJsonObject().get("mode").getAsString() : "Unknown";
+		String hvacStatus = hvacElement != null ? hvacElement.getAsJsonObject().get("status").getAsString() : "Unknown";
+		float ambientTemperature = tempElement != null ? tempElement.getAsJsonObject().get("ambientTemperatureCelsius").getAsFloat() : 0;
 		
 		
 		DeviceStat deviceStat = new DeviceStat(ambientHumidityPercent, connectivityStatus, fanTimerMode,
@@ -101,21 +116,29 @@ public class GCloudUtil {
 		
 		JsonObject convertedObject = new Gson().fromJson(json, JsonObject.class);
 
-		JsonObject timestamp = convertedObject.getAsJsonObject("timestamp");
+		JsonElement timestamp = convertedObject.get("timestamp");
 
-		JsonObject element = convertedObject.getAsJsonObject("traits");
+		JsonObject resourceUpdate = convertedObject.get("resourceUpdate").getAsJsonObject();
 		
-		float ambientHumidityPercent = element.get("traits").getAsJsonObject().get("sdm.devices.traits.Humidity").getAsJsonObject().get("ambientHumidityPercent").getAsFloat();
-		String connectivityStatus = element.get("traits").getAsJsonObject().get("sdm.devices.traits.Connectivity").getAsJsonObject().get("status").getAsString();
-		String fanTimerMode = element.get("traits").getAsJsonObject().get("sdm.devices.traits.Fan").getAsJsonObject().get("timerMode").getAsString();
-		String thermostatMode = element.get("traits").getAsJsonObject().get("sdm.devices.traits.ThermostatMode").getAsJsonObject().get("mode").getAsString();
-		String hvacStatus = element.get("traits").getAsJsonObject().get("sdm.devices.traits.ThermostatHvac").getAsJsonObject().get("status").getAsString();
-		float ambientTemperature = element.get("traits").getAsJsonObject().get("sdm.devices.traits.Temperature").getAsJsonObject().get("ambientTemperatureCelsius").getAsFloat();
-		
-		
-		DeviceEvent deviceEvent = new DeviceEvent(timestamp.getAsString(),ambientHumidityPercent, connectivityStatus, fanTimerMode,
-				thermostatMode,  hvacStatus,  ambientTemperature);
+		JsonObject element = resourceUpdate.get("traits").getAsJsonObject();
+				
+		JsonElement humidityElement = element.get("sdm.devices.traits.Humidity");
+		JsonElement connectivityElement = element.get("sdm.devices.traits.Connectivity");
+		JsonElement fanTimerElement = element.get("sdm.devices.traits.Fan");
+		JsonElement thermostatElement = element.get("sdm.devices.traits.ThermostatMode");
+		JsonElement hvacElement = element.get("sdm.devices.traits.ThermostatHvac");
+		JsonElement tempElement = element.get("sdm.devices.traits.Temperature");
 
+		Map<String,String> eventTraits = new HashMap<String,String>();
+		
+		if (humidityElement != null) eventTraits.put("humidity",humidityElement.getAsJsonObject().get("ambientHumidityPercent").getAsString());
+		if (connectivityElement != null) eventTraits.put("connectivityStatus",connectivityElement.getAsJsonObject().get("status").getAsString());
+		if (fanTimerElement != null) eventTraits.put("fanTimer",fanTimerElement.getAsJsonObject().get("timerMode").getAsString());
+		if (thermostatElement != null) eventTraits.put("thermostatMode",thermostatElement.getAsJsonObject().get("mode").getAsString());
+		if (hvacElement != null) eventTraits.put("hvacStatus",hvacElement.getAsJsonObject().get("status").getAsString());
+		if (tempElement != null) eventTraits.put("temperature",tempElement.getAsJsonObject().get("ambientTemperatureCelsius").getAsString());
+		
+		DeviceEvent deviceEvent = new DeviceEvent(timestamp.getAsString(), eventTraits);
 		
 		return deviceEvent;
 		

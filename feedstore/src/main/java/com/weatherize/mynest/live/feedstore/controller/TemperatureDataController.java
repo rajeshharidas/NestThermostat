@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -34,7 +35,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.weatherize.mynest.live.feedstore.model.FeedResponse;
+import com.weatherize.mynest.live.feedstore.model.HvacData;
 import com.weatherize.mynest.live.feedstore.model.TemperatureData;
+import com.weatherize.mynest.live.feedstore.repository.MyNestThermostatEventRepository;
 import com.weatherize.mynest.live.feedstore.repository.MyNestThermostatLiveRepository;
 import com.weatherize.mynest.live.feedstore.service.TemperatureDataService;
 
@@ -47,6 +50,10 @@ public class TemperatureDataController {
 
 	@Autowired
 	MyNestThermostatLiveRepository thermostatRepository;
+	
+	@Autowired
+	MyNestThermostatEventRepository eventDataRepository;
+	
 	
 	@Autowired
 	TemperatureDataService temperatureDataService;
@@ -180,6 +187,39 @@ public class TemperatureDataController {
 
 				TemperatureData _temperatureData = thermostatRepository.save(tempData);
 				logger.info("Parsed json string as Temperature object: " + _temperatureData.toString());
+
+			} catch (Exception e) {
+				logger.error("Kafka Listener error: " + e.getMessage());
+			}
+		}
+	}
+	
+	@KafkaListener(topics = "myNestEventTopic")
+	public void listenEvents(ConsumerRecord<?, ?> cr) throws Exception {
+		String json = cr.value().toString();
+		logger.info("Incoming json string from nest events kafka topic: " + json);
+		JsonObject convertedObject = new Gson().fromJson(json, JsonObject.class);
+
+		if (convertedObject.isJsonObject()) {
+			try {
+				logger.info("Converted json object: " + convertedObject.toString());
+				HvacData tempData = new HvacData();
+				tempData.setEventid(UUID.fromString(convertedObject.get("eventid").getAsString()));
+				tempData.setHumidity(convertedObject.get("humidity").getAsFloat());
+				tempData.setTemperature(convertedObject.get("temperature").getAsFloat());
+
+				DateFormat cstFormat = new SimpleDateFormat("MM/dd/yy','HH:mm a");
+				cstFormat.setTimeZone(TimeZone.getTimeZone("CST"));
+				LocalDateTime date = convertToLocalDateTimeViaInstant(
+						cstFormat.parse(convertedObject.get("timeofevent").getAsString()));
+				tempData.setTimeofevent(date);
+				tempData.setMode(convertedObject.get("mode").getAsString());
+				tempData.setHvacCycleOn(convertedObject.get("hvacStatus").getAsString() == "ON");
+
+				logger.info("Saving data - ", date);
+
+				HvacData hvacData = eventDataRepository.save(tempData);
+				logger.info("Parsed json string as Hvac Event object: " + hvacData.toString());
 
 			} catch (Exception e) {
 				logger.error("Kafka Listener error: " + e.getMessage());

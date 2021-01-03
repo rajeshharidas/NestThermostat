@@ -1,6 +1,8 @@
 package com.weatherize.mynest.live.feedstore.model;
 
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.UUID;
 
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
@@ -8,12 +10,14 @@ import org.springframework.data.cassandra.core.mapping.Table;
 
 @Table
 public class HvacData {
+	
+	@PrimaryKeyColumn(name = "eventid", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
+	private UUID eventid;
+	
+	private LocalDateTime timeofevent;
 
-	@PrimaryKeyColumn(name = "timeofevent", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
-	private Date timestamp;
-
-	private Integer temperature;
-	private Integer humidity;
+	private Float temperature;
+	private Float humidity;
 	private boolean hvacCycleOn;
 	private String mode;
 
@@ -21,28 +25,37 @@ public class HvacData {
 
 	}
 
-	public HvacData(Date timestamp, Integer temperature, Integer humidity, boolean hvacCycleOn, String mode) {
+	public HvacData(UUID eventid, LocalDateTime timeofevent, Float temperature, Float humidity, boolean hvacCycleOn, String mode) {
 		super();
-		this.timestamp = timestamp;
+		this.eventid = eventid;
+		this.timeofevent = timeofevent;
 		this.temperature = temperature;
 		this.humidity = humidity;
 		this.hvacCycleOn = hvacCycleOn;
 		this.mode = mode;
 	}
 
-	public Date getTimestamp() {
-		return timestamp;
+	public UUID getEventid() {
+		return eventid;
 	}
 
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
+	public void setEventid(UUID eventid) {
+		this.eventid = eventid;
 	}
 
-	public Integer getTemperature() {
+	public LocalDateTime getTimeofevent() {
+		return timeofevent;
+	}
+
+	public void setTimeofevent(LocalDateTime timeofevent) {
+		this.timeofevent = timeofevent;
+	}
+
+	public Float getTemperature() {
 		return temperature;
 	}
 
-	public void setTemperature(Integer temperature) {
+	public void setTemperature(Float temperature) {
 		this.temperature = temperature;
 	}
 
@@ -62,18 +75,18 @@ public class HvacData {
 		this.mode = mode;
 	}
 
-	public Integer getHumidity() {
+	public Float getHumidity() {
 		return humidity;
 	}
 
-	public void setHumidity(Integer humidity) {
+	public void setHumidity(Float humidity) {
 		this.humidity = humidity;
 	}
 
 	@Override
 	public String toString() {
-		return "HvacData [timestamp=" + timestamp + ", temperature=" + temperature + ", humidity=" + humidity
-				+ ", hvacCycleOn=" + hvacCycleOn + "]";
+		return "HvacData [eventid=" + eventid + ", timestamp=" + timeofevent + ", temperature=" + temperature
+				+ ", humidity=" + humidity + ", hvacCycleOn=" + hvacCycleOn + ", mode=" + mode + "]";
 	}
 
 }
