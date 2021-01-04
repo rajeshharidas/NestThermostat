@@ -1,6 +1,7 @@
 package com.weatherize.mynest.live.feedstore.controller;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -15,10 +16,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.cassandra.core.query.CassandraPageRequest;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -33,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.weatherize.mynest.live.feedstore.model.FeedResponse;
 import com.weatherize.mynest.live.feedstore.model.HvacData;
@@ -50,18 +48,17 @@ public class TemperatureDataController {
 
 	@Autowired
 	MyNestThermostatLiveRepository thermostatRepository;
-	
+
 	@Autowired
 	MyNestThermostatEventRepository eventDataRepository;
-	
-	
+
 	@Autowired
 	TemperatureDataService temperatureDataService;
 
 	@GetMapping("/temperaturedata")
 	public ResponseEntity<FeedResponse<TemperatureData>> getAllTemperatureData() {
 		try {
-			
+
 			FeedResponse<TemperatureData> nestResponse = new FeedResponse<TemperatureData>();
 
 			List<TemperatureData> temperatureData = temperatureDataService.GetAllTemperatureData();
@@ -193,7 +190,7 @@ public class TemperatureDataController {
 			}
 		}
 	}
-	
+
 	@KafkaListener(topics = "myNestEventTopic")
 	public void listenEvents(ConsumerRecord<?, ?> cr) throws Exception {
 		String json = cr.value().toString();
@@ -203,25 +200,75 @@ public class TemperatureDataController {
 		if (convertedObject.isJsonObject()) {
 			try {
 				logger.info("Converted json object: " + convertedObject.toString());
-				HvacData tempData = new HvacData();
-				tempData.setEventid(UUID.fromString(convertedObject.get("eventid").getAsString()));
-				tempData.setHumidity(convertedObject.get("humidity").getAsFloat());
-				tempData.setTemperature(convertedObject.get("temperature").getAsFloat());
+
+				List<HvacData> hvacEvents = new ArrayList<HvacData>();
+				LocalDateTime localdate = null;
+
+				DateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+				utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+				Date date = utcFormat.parse(convertedObject.get("timeStamp").getAsString());
 
 				DateFormat cstFormat = new SimpleDateFormat("MM/dd/yy','HH:mm a");
 				cstFormat.setTimeZone(TimeZone.getTimeZone("CST"));
-				LocalDateTime date = convertToLocalDateTimeViaInstant(
-						cstFormat.parse(convertedObject.get("timeofevent").getAsString()));
-				tempData.setTimeofevent(date);
-				tempData.setMode(convertedObject.get("mode").getAsString());
-				tempData.setHvacCycleOn(convertedObject.get("hvacStatus").getAsString() == "ON");
+				localdate = convertToLocalDateTimeViaInstant(date);
 
-				logger.info("Saving data - ", date);
+				JsonObject eventTraits = convertedObject.get("eventTraits").getAsJsonObject();
 
-				HvacData hvacData = eventDataRepository.save(tempData);
-				logger.info("Parsed json string as Hvac Event object: " + hvacData.toString());
+				JsonElement humidityTrait = eventTraits.get("humidity");
+				if (humidityTrait != null) {
+					HvacData humidityData = new HvacData();
+					humidityData.setEventid(UUID.fromString(convertedObject.get("eventId").getAsString()));
+					humidityData.setTimeofevent(localdate);
+					humidityData.setTraitkey("humidity");
+					humidityData.setTraitvalue(humidityTrait.getAsString());
+					hvacEvents.add(humidityData);
+				}
 
+				JsonElement tempTrait = eventTraits.get("temperature");
+				if (tempTrait != null) {
+					HvacData tempData = new HvacData();
+					tempData.setEventid(UUID.fromString(convertedObject.get("eventId").getAsString()));
+					tempData.setTimeofevent(localdate);
+					tempData.setTraitkey("temperature");
+					tempData.setTraitvalue(tempTrait.getAsString());
+					hvacEvents.add(tempData);
+				}
+
+				JsonElement hvacTrait = eventTraits.get("hvacStatus");
+				if (hvacTrait != null) {
+					HvacData hvacData = new HvacData();
+					hvacData.setEventid(UUID.fromString(convertedObject.get("eventId").getAsString()));
+					hvacData.setTimeofevent(localdate);
+					hvacData.setTraitkey("hvacStatus");
+					hvacData.setTraitvalue(hvacTrait.getAsString());
+					hvacEvents.add(hvacData);
+				}
+
+				JsonElement modeTrait = eventTraits.get("thermostatMode");
+				if (modeTrait != null) {
+					HvacData hvacMode = new HvacData();
+					hvacMode.setEventid(UUID.fromString(convertedObject.get("eventId").getAsString()));
+					hvacMode.setTimeofevent(localdate);
+					hvacMode.setTraitkey("thermostatMode");
+					hvacMode.setTraitvalue(modeTrait.getAsString());
+					hvacEvents.add(hvacMode);
+				}
+
+				
+				if (!hvacEvents.isEmpty()) {
+					logger.info("Saving data - ", hvacEvents);
+					List<HvacData> eventsData = eventDataRepository.saveAll(hvacEvents);
+					logger.info("Parsed json string as list of Hvac Event objects: " + eventsData.toString());
+				}
+				else
+					logger.info("Nothing to save yet!");
+
+			} catch (ParseException pex) {
+				pex.printStackTrace();
+				logger.error("Kafka Listener error: " + pex.getMessage());
 			} catch (Exception e) {
+				e.printStackTrace();
 				logger.error("Kafka Listener error: " + e.getMessage());
 			}
 		}

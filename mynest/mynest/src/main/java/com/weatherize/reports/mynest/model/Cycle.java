@@ -79,7 +79,7 @@ public class Cycle {
 	private String convertDate(String dateTime) {
 
 		try {
-			DateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+			DateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 			utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
 			Date date = utcFormat.parse(dateTime);

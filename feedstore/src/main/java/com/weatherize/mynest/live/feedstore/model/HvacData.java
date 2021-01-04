@@ -1,38 +1,34 @@
 package com.weatherize.mynest.live.feedstore.model;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.UUID;
 
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.core.mapping.Table;
 
-@Table
+@Table("nesteventdata")
 public class HvacData {
 	
 	@PrimaryKeyColumn(name = "eventid", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
 	private UUID eventid;
 	
 	private LocalDateTime timeofevent;
-
-	private Float temperature;
-	private Float humidity;
-	private boolean hvacCycleOn;
-	private String mode;
-
+	
+	private String traitkey;
+	
+	private String traitvalue;
+	
 	public HvacData() {
 
 	}
 
-	public HvacData(UUID eventid, LocalDateTime timeofevent, Float temperature, Float humidity, boolean hvacCycleOn, String mode) {
+	public HvacData(UUID eventid, LocalDateTime timeofevent, String traitkey, String traitvalue) {
 		super();
 		this.eventid = eventid;
 		this.timeofevent = timeofevent;
-		this.temperature = temperature;
-		this.humidity = humidity;
-		this.hvacCycleOn = hvacCycleOn;
-		this.mode = mode;
+		this.traitkey = traitkey;
+		this.traitvalue = traitvalue;
 	}
 
 	public UUID getEventid() {
@@ -51,42 +47,28 @@ public class HvacData {
 		this.timeofevent = timeofevent;
 	}
 
-	public Float getTemperature() {
-		return temperature;
+	public String getTraitkey() {
+		return traitkey;
 	}
 
-	public void setTemperature(Float temperature) {
-		this.temperature = temperature;
+	public void setTraitkey(String traitkey) {
+		this.traitkey = traitkey;
 	}
 
-	public boolean isHvacCycleOn() {
-		return hvacCycleOn;
+	public String getTraitvalue() {
+		return traitvalue;
 	}
 
-	public void setHvacCycleOn(boolean hvacCycleOn) {
-		this.hvacCycleOn = hvacCycleOn;
-	}
-
-	public String getMode() {
-		return mode;
-	}
-
-	public void setMode(String mode) {
-		this.mode = mode;
-	}
-
-	public Float getHumidity() {
-		return humidity;
-	}
-
-	public void setHumidity(Float humidity) {
-		this.humidity = humidity;
+	public void setTraitvalue(String traitvalue) {
+		this.traitvalue = traitvalue;
 	}
 
 	@Override
 	public String toString() {
-		return "HvacData [eventid=" + eventid + ", timestamp=" + timeofevent + ", temperature=" + temperature
-				+ ", humidity=" + humidity + ", hvacCycleOn=" + hvacCycleOn + ", mode=" + mode + "]";
+		return "HvacData [eventid=" + eventid + ", timeofevent=" + timeofevent + ", traitkey=" + traitkey
+				+ ", traitvalue=" + traitvalue + "]";
 	}
+
+
 
 }

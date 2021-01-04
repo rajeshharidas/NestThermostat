@@ -116,6 +116,8 @@ public class GCloudUtil {
 		
 		JsonObject convertedObject = new Gson().fromJson(json, JsonObject.class);
 
+		JsonElement eventId = convertedObject.get("eventId");
+		
 		JsonElement timestamp = convertedObject.get("timestamp");
 
 		JsonObject resourceUpdate = convertedObject.get("resourceUpdate").getAsJsonObject();
@@ -138,7 +140,7 @@ public class GCloudUtil {
 		if (hvacElement != null) eventTraits.put("hvacStatus",hvacElement.getAsJsonObject().get("status").getAsString());
 		if (tempElement != null) eventTraits.put("temperature",tempElement.getAsJsonObject().get("ambientTemperatureCelsius").getAsString());
 		
-		DeviceEvent deviceEvent = new DeviceEvent(timestamp.getAsString(), eventTraits);
+		DeviceEvent deviceEvent = new DeviceEvent(eventId.getAsString(),timestamp.getAsString(), eventTraits);
 		
 		return deviceEvent;
 		

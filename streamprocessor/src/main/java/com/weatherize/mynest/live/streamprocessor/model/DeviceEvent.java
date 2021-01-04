@@ -4,6 +4,8 @@ import java.util.Map;
 
 public class DeviceEvent {
 
+	private String eventId;
+	
 	private String timeStamp;
 	
 	private Map<String,String> eventTraits;
@@ -14,10 +16,21 @@ public class DeviceEvent {
 	}
 	
 	
-	public DeviceEvent(String timeStamp, Map<String,String> eventTraits) {
+	public DeviceEvent(String eventId, String timeStamp, Map<String,String> eventTraits) {
 		super();
+		this.eventId = eventId;
 		this.timeStamp = timeStamp;
 		this.eventTraits = eventTraits;
+	}
+
+
+	public String getEventId() {
+		return eventId;
+	}
+
+
+	public void setEventId(String eventId) {
+		this.eventId = eventId;
 	}
 
 
