@@ -79,12 +79,13 @@ public class Cycle {
 	private String convertDate(String dateTime) {
 
 		try {
-			DateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+			dateTime = dateTime.replace("[UTC]", "");
+			DateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 			utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
 			Date date = utcFormat.parse(dateTime);
 
-			DateFormat cstFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+			DateFormat cstFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 			cstFormat.setTimeZone(TimeZone.getTimeZone("CST"));
 
 			return cstFormat.format(date);
@@ -104,6 +105,7 @@ public class Cycle {
 
 	private String getTime(String dateTime) {
 		try {
+			dateTime = dateTime.replace("[UTC]", "");
 			DateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 			utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 

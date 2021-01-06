@@ -1,7 +1,9 @@
 package com.weatherize.mynest.live.streamprocessor.controller;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +22,14 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import com.google.cloud.pubsub.v1.Subscriber;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.weatherize.mynest.live.streamprocessor.config.GCPConfig;
 import com.weatherize.mynest.live.streamprocessor.model.DeviceEvent;
 import com.weatherize.mynest.live.streamprocessor.model.DeviceStat;
+import com.weatherize.mynest.live.streamprocessor.model.TemperatureData;
+import com.weatherize.mynest.live.streamprocessor.util.CVSFilesfromAWSS3;
 import com.weatherize.mynest.live.streamprocessor.util.GCloudUtil;
+import com.weatherize.mynest.live.streamprocessor.util.JsonFilesfromAWSS3;
 
 @RestController
 @RequestMapping("/streamapi")
@@ -130,26 +136,62 @@ public class NestStreamProcessorController {
 		}
 	}
 
-	/*
-	 * @GetMapping("/loadfroms3") public RedirectView loadfroms3() {
-	 * 
-	 * CVSFilesfromAWSS3 csvFilefromAWSS3 = new CVSFilesfromAWSS3();
-	 * List<TemperatureData> data = csvFilefromAWSS3.GetTemperatureDatafromS3();
-	 * 
-	 * data.forEach(item -> {
-	 * 
-	 * if (item != null) { JsonObject json = new JsonObject();
-	 * json.addProperty("timeofcapture",DateFormat.getInstance().format(item.
-	 * getTimeofcapture())); json.addProperty("temperature",item.getTemperature());
-	 * json.addProperty("humidity",item.getHumidity());
-	 * json.addProperty("timetotarget",item.getTimetotarget());
-	 * json.addProperty("mode",item.getMode());
-	 * json.addProperty("hvaccycleon",false);
-	 * 
-	 * this.template.send("myNestTopic", json.toString()); } });
-	 * 
-	 * 
-	 * return buildStatusView("Load complete."); }
-	 */
+	@GetMapping("/loadtemperaturedatafroms3")
+	public ResponseEntity<String> loadtemperaturedatafroms3() {
+
+		try {
+			CVSFilesfromAWSS3 csvFilefromAWSS3 = new CVSFilesfromAWSS3();
+			List<TemperatureData> data = csvFilefromAWSS3.GetTemperatureDatafromS3();
+
+			data.forEach(item -> {
+
+				if (item != null) {
+					JsonObject json = new JsonObject();
+					json.addProperty("timeofcapture", DateFormat.getInstance().format(item.getTimeofcapture()));
+					json.addProperty("temperature", item.getTemperature());
+					json.addProperty("humidity", item.getHumidity());
+					json.addProperty("timetotarget", item.getTimetotarget());
+					json.addProperty("mode", item.getMode());
+					json.addProperty("hvaccycleon", false);
+
+					this.template.send("myNestTopic", json.toString());
+				}
+			});
+
+			return new ResponseEntity<>("Uploaded temperature data!", HttpStatus.OK);
+		} catch (HttpClientErrorException e) {
+			String message = e.getMostSpecificCause().getMessage();
+			return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@GetMapping("/loadhvaceventsfroms3")
+	public ResponseEntity<String> loadhvaceventsfroms3() {
+
+		try {
+			JsonFilesfromAWSS3 jsonFilefromAWSS3 = new JsonFilesfromAWSS3();
+			List<DeviceEvent> deviceEvents = jsonFilefromAWSS3.GetDeviceEventDatafromS3();
+
+			deviceEvents.forEach(item -> {
+
+				if (item != null) {
+					String convertedObject = new Gson().toJson(item, DeviceEvent.class);
+					LOGGER.info("Sending to device: " + convertedObject);
+					this.template.send("myNestEventTopic", convertedObject);
+				}
+			});
+
+			return new ResponseEntity<>("Uploaded hvac events and temperature data!", HttpStatus.OK);
+		} catch (HttpClientErrorException e) {
+			String message = e.getMostSpecificCause().getMessage();
+			return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 
 }
