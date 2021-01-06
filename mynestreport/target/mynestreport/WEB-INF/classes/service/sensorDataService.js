@@ -5,7 +5,7 @@
 
 import axios from 'axios'
 
-const BASE_API_URL = 'http://rhwin8srv:8085'
+const BASE_API_URL = 'http://rhwin8srv:8190'
 const SENSORDATASERVICE_API_URL = `${BASE_API_URL}/mynest/api/sensordata`
 
 class SensorDataService {

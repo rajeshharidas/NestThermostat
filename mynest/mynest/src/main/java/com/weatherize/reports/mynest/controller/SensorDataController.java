@@ -52,6 +52,7 @@ public class SensorDataController {
 				if (data.getAvgTemp() != null && data.getAvgHumidity() != null)
 					entries.add(data);
 			});
+			
 			nestResponse.setValues(entries);
 			
 			logger.info("Sensor data from mongodb");

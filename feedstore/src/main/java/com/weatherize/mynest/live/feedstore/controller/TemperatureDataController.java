@@ -37,9 +37,10 @@ import com.weatherize.mynest.live.feedstore.model.HvacData;
 import com.weatherize.mynest.live.feedstore.model.TemperatureData;
 import com.weatherize.mynest.live.feedstore.repository.MyNestThermostatEventRepository;
 import com.weatherize.mynest.live.feedstore.repository.MyNestThermostatLiveRepository;
+import com.weatherize.mynest.live.feedstore.service.HvacDataService;
 import com.weatherize.mynest.live.feedstore.service.TemperatureDataService;
 
-@CrossOrigin(origins = "http://localhost:8085")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/dataapi")
 public class TemperatureDataController {
@@ -54,6 +55,9 @@ public class TemperatureDataController {
 
 	@Autowired
 	TemperatureDataService temperatureDataService;
+	
+	@Autowired
+	HvacDataService hvacDataService;
 
 	@GetMapping("/temperaturedata")
 	public ResponseEntity<FeedResponse<TemperatureData>> getAllTemperatureData() {
@@ -68,6 +72,7 @@ public class TemperatureDataController {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 			logger.info("Return data from controller!");
+			temperatureData.sort(new TemperatureDataComparator());
 			nestResponse.setValues(temperatureData);
 
 			return new ResponseEntity<>(nestResponse, HttpStatus.OK);
@@ -148,6 +153,29 @@ public class TemperatureDataController {
 			return new ResponseEntity<>(temperatureData, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@GetMapping("/hvacdata")
+	public ResponseEntity<FeedResponse<HvacData>> getAllHvacData() {
+		try {
+
+			FeedResponse<HvacData> nestResponse = new FeedResponse<HvacData>();
+
+			List<HvacData> hvacData = hvacDataService.GetAllHvacData();
+
+			if (hvacData.isEmpty()) {
+				logger.info("No data");
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+			logger.info("Return data from controller!");
+			hvacData.sort(new HvacDataComparator());
+			nestResponse.setValues(hvacData);
+
+			return new ResponseEntity<>(nestResponse, HttpStatus.OK);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 

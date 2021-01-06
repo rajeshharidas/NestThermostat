@@ -6,23 +6,26 @@ import '../App.css';
 import Moment from 'moment';
 import React from 'react';
 import LiveFeedService from '../service/liveFeedService'
-import Chart from "react-google-charts";
+import Highcharts from "highcharts/highstock";
+import HighchartsReact from 'highcharts-react-official'
 
-import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
-import Loader from 'react-loader-spinner'
+require("highcharts/indicators/indicators")(Highcharts);
+require("highcharts/indicators/pivot-points")(Highcharts);
+require("highcharts/indicators/macd")(Highcharts);
+require("highcharts/modules/exporting")(Highcharts);
+
 
 class LiveFeedChart extends React.Component {
+
 
 	constructor(props) {
 		super(props)
 		this.state = {
-			sensorMapData: [
-				[
-					{ type: 'string', id: 'Date' },
-					{ type: 'number', id: 'Temperature' },
-					{ type: 'number', id: 'Humidity' }
-				]
+			sensorTempData: [
+			],
+			sensorHumidityData: [
 			]
+
 		};
 		this.loadSensorData = this.loadSensorData.bind(this);
 		this.loadSensorData();
@@ -34,105 +37,97 @@ class LiveFeedChart extends React.Component {
 
 				const sensordatas = Array.from(response.data.values);
 
-				var sensorDataArray = [
-					[
-						{ type: 'date', id: 'Date', label: 'Date' },
-						{ type: 'number', id: 'Temperature', label: 'Temperature' },
-						{ type: 'number', id: 'Humidity', label: 'Humidity' }
-					]
+				var sensorTempArray = [
+				];
+
+				var sensorHumidityArray = [
 				];
 
 				sensordatas.forEach(element => {
 
-					var chartDataRow = [];
+					var chartTempDataRow = [];
 					var datetime = Moment(element.timeofcapture).toDate();
-					chartDataRow.push(datetime);
-					
+					chartTempDataRow.push(datetime);
+
 					var temp = parseFloat(element.temperature);
-					temp = (temp * (9/5)) + 32; 
+					temp = (temp * (9 / 5)) + 32;
 					console.log(temp);
-					
-					chartDataRow.push(temp);
-					chartDataRow.push(parseFloat(element.humidity));
-					if (element.temperature !== "" && element.humidity !== "")
-						sensorDataArray.push(chartDataRow);
+
+					chartTempDataRow.push(temp);
+					if (element.temperature !== "")
+						sensorTempArray.push(chartTempDataRow);
+
+					var chartHumidityDataRow = [];
+					chartHumidityDataRow.push(datetime);
+
+					chartHumidityDataRow.push(parseFloat(element.humidity));
+
+					if (element.humidity !== "")
+						sensorHumidityArray.push(chartHumidityDataRow);
+
 				});
 
 				this.setState({
-					sensorMapData: sensorDataArray
+					sensorTempData: sensorTempArray,
+					sensorHumidityData: sensorHumidityArray
 				});
-
+				
 				console.log("Service data", sensordatas);
-				console.log("Heat map data", sensorDataArray);
+				console.log("Temperature data map", sensorTempArray);
+				console.log("Humidity data map", sensorHumidityArray);
 			}
 			);
 	}
 
-	handlePageChange(data) {
+	handlePageChange() {
 		this.loadSensorData();
 	}
 
 	render() {
+		
+		 var options = {
+				chart: {
+					type: 'line',
+					zoomType: 'x',
+					panning: true,
+        			panKey: 'shift'
+				},
+				title: {
+					text: "Temperature and Humity around the year"
+				},
+				xAxis: {
+					title: { text: "Time" },
+					type: "datetime"
+				},
+				yAxis: {
+					title: { text: "Temperature/Humidity" },
+					type: "linear"
+				},
+				series: [
+					{
+						id: "tempseries",
+						name: "Temperature",
+						data: this.state.sensorTempData
+					},
+					{
+						id: "humidityseries",
+						name: "Humidity",
+						data: this.state.sensorHumidityData
+					}
+				]
+			};
+
 
 		return (
 			<div>
 				<div>
-					<Chart
-						width={'100%'}
-						height={'100%'}
-						chartType="LineChart"
-						loader={<div>Loading Chart</div>}
-						data={this.state.sensorMapData}
-						options={{
-							chart: {
-								title:
-									'Average Temperatures and Humidity Throughout the Year',
-							},
-							width: 1280,
-							height: 800,
-							explorer: {
-								actions: ['dragToZoom', 'rightClickToReset'],
-								axis: 'horizontal',
-								keepInBounds: true,
-								maxZoomIn: 8.0
-							},
-							hAxis: {
-								format: 'MM/dd/yyyy hh:mm a',
-								gridlines: { count: 15 },
-							},
-							vAxis: {
-								title: 'Sensor',
-							},
-							series: {
-								0: { axis: 'Temps', curveType: 'function' },
-								1: { axis: 'Humidity', curveType: 'function' },
-							},
-							crosshair: {
-								color: '#000',
-								trigger: 'selection'
-							},
-							axes: {
-								// Adds labels to each axis; they don't have to match the axis names.
-								y: {
-									Temps: { label: 'Temps (Fahrenheit)' },
-									Humidity: { label: 'Humidity' },
-								},
-							},
-
-						}}
-						rootProps={{ 'data-testid': '2' }}
+					<HighchartsReact
+						highcharts={Highcharts}
+						ref={this.chartComponent}
+						options={options}
 					/>
 				</div>
-				<div class="overlay-box">
-					<Loader
-						type="Puff"
-						color="#00BFFF"
-						height={100}
-						width={100}
-						timeout={5000} //3 secs
-					/>
 
-				</div>
 			</div>
 		);
 	}

@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +34,7 @@ import com.weatherize.mynest.live.streamprocessor.util.JsonFilesfromAWSS3;
 
 @RestController
 @RequestMapping("/streamapi")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class NestStreamProcessorController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(NestStreamProcessorController.class);
