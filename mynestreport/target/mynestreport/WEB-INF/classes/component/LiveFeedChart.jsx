@@ -30,7 +30,7 @@ class LiveFeedChart extends React.Component {
 		this.loadSensorData = this.loadSensorData.bind(this);
 		this.loadSensorData();
 		this.loadHvacData = this.loadHvacData.bind(this);
-		this.loadHvacData();		
+		this.loadHvacData();
 	}
 
 	loadSensorData() {
@@ -73,9 +73,9 @@ class LiveFeedChart extends React.Component {
 					sensorHumidityData: sensorHumidityArray
 				});
 
-				console.log("Service data", sensordatas);
-				console.log("Temperature data map", sensorTempArray);
-				console.log("Humidity data map", sensorHumidityArray);
+				//console.log("Service data", sensordatas);
+				//console.log("Temperature data map", sensorTempArray);
+				//console.log("Humidity data map", sensorHumidityArray);
 			}
 			);
 	}
@@ -86,44 +86,70 @@ class LiveFeedChart extends React.Component {
 
 				const hvacdatas = Array.from(response.data.values);
 
-				console.log("Event Service data", hvacdatas);
+				//console.log("Event Service data", hvacdatas);
 
 				var flagData = [];
-
+				var bandData = [];
+				var band = {};
+				band.color = "rgba(255, 197, 0, 0.2)";
+				
 				hvacdatas.forEach(element => {
 					var flag = {};
-					var datetime = new Date(Moment(element.timeofevent,"YYYY-MM-DDTHH:mm:ss.SSS").format("YYYY-MM-DD HH:mm:ss"));
-					
+					var datetime = new Date(Moment(element.timeofevent, "YYYY-MM-DDTHH:mm:ss.SSS").format("YYYY-MM-DD HH:mm:ss"));
+
 					if (element.traitkey === "temperature") {
-						
+
 						var temp = parseFloat(element.traitvalue);
 						temp = (temp * (9 / 5)) + 32;
-					
+
 						flag = {
-          						x: datetime,
-          						y: temp,
-          						title: "T",
-          						text: temp
-        				}		
+							x: datetime,
+							y: temp,
+							title: "T",
+							text: temp
+						}
 						flagData.push(flag);
 					}
 					else if (element.traitkey === "humidity") {
 						flag = {
-          						x: datetime,
-          						y: parseFloat(element.traitvalue),
-          						title: "H",
-          						text: element.traitvalue
+							x: datetime,
+							y: parseFloat(element.traitvalue),
+							title: "H",
+							text: element.traitvalue
 						}
 						flagData.push(flag);
 					}
-					
+					else if (element.traitkey === "hvacStatus") {
+						
+						if (element.traitvalue === "ON")
+						{
+							band.from = datetime;							
+						}
+						else if (element.traitvalue === "OFF") {
+							
+							band.to = datetime;
+							bandData.push(band);
+							band = {}
+							band.color = "rgba(255, 197, 0, 0.2)";							
+						}
+						else if (element.traitvalue === "HEATING"){
+							band.color = "rgba(255, 80, 0, 0.42)";
+						}
+						else if (element.traitvalue === "COOLING") {
+							band.color = "rgba(0, 0, 255, 0.27)";
+						}
+						
+					}
+
 				});
 
 				this.setState({
-					flagData: flagData
+					flagData: flagData,
+					bandData: bandData
 				});
 
 				console.log("Event Flag data", flagData);
+				console.log("Event Band data", bandData);
 			}
 			);
 	}
@@ -143,16 +169,17 @@ class LiveFeedChart extends React.Component {
 				panning: true,
 				panKey: 'shift'
 			},
-			 rangeSelector: {
-		      selected: 1
-		    },
+			rangeSelector: {
+				selected: 1,
+				inputDateFormat: '%b %e, %Y %H:%M'
+			},
 			title: {
 				text: "Temperature and Humity around the year"
 			},
 			xAxis: {
 				title: { text: "Time" },
 				type: "datetime",
-				plotBands: []
+				plotBands: this.state.bandData
 			},
 			yAxis: {
 				title: { text: "Temperature/Humidity" },
@@ -168,7 +195,7 @@ class LiveFeedChart extends React.Component {
 					id: "humidityseries",
 					name: "Humidity",
 					data: this.state.sensorHumidityData
-				},				
+				},
 				{
 					id: "events",
 					name: "Events",

@@ -154,9 +154,9 @@ public class JsonFilesfromAWSS3 {
 									Map<String, String> eventTraitsHvac = new HashMap<String, String>();
 									if (isHeat == true)
 										eventTraitsHvac.put("hvacStatus", "HEATING");
-									if (isCool == true)
+									else if (isCool == true)
 										eventTraitsHvac.put("hvacStatus", "COOLING");
-									if (isfan == true)
+									else if (isfan == true)
 										eventTraitsHvac.put("hvacStatus", "FAN");
 									deviceEventHvac.setEventTraits(eventTraitsHvac);
 
