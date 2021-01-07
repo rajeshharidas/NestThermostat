@@ -92,7 +92,7 @@ class LiveFeedChart extends React.Component {
 				var bandData = [];
 				var band = {};
 				band.color = "rgba(255, 197, 0, 0.2)";
-				
+
 				hvacdatas.forEach(element => {
 					var flag = {};
 					var datetime = new Date(Moment(element.timeofevent, "YYYY-MM-DDTHH:mm:ss.SSS").format("YYYY-MM-DD HH:mm:ss"));
@@ -120,25 +120,24 @@ class LiveFeedChart extends React.Component {
 						flagData.push(flag);
 					}
 					else if (element.traitkey === "hvacStatus") {
-						
-						if (element.traitvalue === "ON")
-						{
-							band.from = datetime;							
+
+						if (element.traitvalue === "ON") {
+							band.from = datetime;
 						}
 						else if (element.traitvalue === "OFF") {
-							
+
 							band.to = datetime;
 							bandData.push(band);
 							band = {}
-							band.color = "rgba(255, 197, 0, 0.2)";							
+							band.color = "rgba(255, 197, 0, 0.2)";
 						}
-						else if (element.traitvalue === "HEATING"){
+						else if (element.traitvalue === "HEATING") {
 							band.color = "rgba(255, 80, 0, 0.42)";
 						}
 						else if (element.traitvalue === "COOLING") {
 							band.color = "rgba(0, 0, 255, 0.27)";
 						}
-						
+
 					}
 
 				});
@@ -166,12 +165,17 @@ class LiveFeedChart extends React.Component {
 				height: (9 / 16 * 100) + '%',
 				type: 'line',
 				zoomType: 'x',
-				panning: true,
+				panning: {
+					enabled: true,
+					type: 'xy'
+				},
 				panKey: 'shift'
 			},
 			rangeSelector: {
 				selected: 1,
-				inputDateFormat: '%b %e, %Y %H:%M'
+				inputDateFormat: '%b %e, %Y %H:%M',
+				inputBoxWidth: 120,
+				inputBoxHeight: 18
 			},
 			title: {
 				text: "Temperature and Humity around the year"
@@ -179,27 +183,38 @@ class LiveFeedChart extends React.Component {
 			xAxis: {
 				title: { text: "Time" },
 				type: "datetime",
-				plotBands: this.state.bandData
+				plotBands: this.state.bandData,
+				crosshair: true
 			},
 			yAxis: {
 				title: { text: "Temperature/Humidity" },
-				type: "linear"
+				type: "linear",
+				crosshair: true
 			},
 			series: [
 				{
 					id: "tempseries",
 					name: "Temperature",
-					data: this.state.sensorTempData
+					data: this.state.sensorTempData,
+					marker: {
+						enabled: true
+					},
+					showInLegend: true
 				},
 				{
 					id: "humidityseries",
 					name: "Humidity",
-					data: this.state.sensorHumidityData
+					data: this.state.sensorHumidityData,
+					marker: {
+						enabled: true
+					},
+					showInLegend: true
 				},
 				{
 					id: "events",
 					name: "Events",
 					type: "flags",
+					showInLegend: true,
 					turboThreshold: 40000,
 					states: {
 						hover: {
