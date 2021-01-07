@@ -29,6 +29,8 @@ class LiveFeedChart extends React.Component {
 		};
 		this.loadSensorData = this.loadSensorData.bind(this);
 		this.loadSensorData();
+		this.loadHvacData = this.loadHvacData.bind(this);
+		this.loadHvacData();		
 	}
 
 	loadSensorData() {
@@ -51,7 +53,6 @@ class LiveFeedChart extends React.Component {
 
 					var temp = parseFloat(element.temperature);
 					temp = (temp * (9 / 5)) + 32;
-					console.log(temp);
 
 					chartTempDataRow.push(temp);
 					if (element.temperature !== "")
@@ -71,7 +72,7 @@ class LiveFeedChart extends React.Component {
 					sensorTempData: sensorTempArray,
 					sensorHumidityData: sensorHumidityArray
 				});
-				
+
 				console.log("Service data", sensordatas);
 				console.log("Temperature data map", sensorTempArray);
 				console.log("Humidity data map", sensorHumidityArray);
@@ -79,43 +80,118 @@ class LiveFeedChart extends React.Component {
 			);
 	}
 
+	loadHvacData() {
+		LiveFeedService.retrieveAllHvacData()
+			.then(response => {
+
+				const hvacdatas = Array.from(response.data.values);
+
+				console.log("Event Service data", hvacdatas);
+
+				var flagData = [];
+
+				hvacdatas.forEach(element => {
+					var flag = {};
+					var datetime = new Date(Moment(element.timeofevent,"YYYY-MM-DDTHH:mm:ss.SSS").format("YYYY-MM-DD HH:mm:ss"));
+					
+					if (element.traitkey === "temperature") {
+						
+						var temp = parseFloat(element.traitvalue);
+						temp = (temp * (9 / 5)) + 32;
+					
+						flag = {
+          						x: datetime,
+          						y: temp,
+          						title: "T",
+          						text: temp
+        				}		
+						flagData.push(flag);
+					}
+					else if (element.traitkey === "humidity") {
+						flag = {
+          						x: datetime,
+          						y: parseFloat(element.traitvalue),
+          						title: "H",
+          						text: element.traitvalue
+						}
+						flagData.push(flag);
+					}
+					
+				});
+
+				this.setState({
+					flagData: flagData
+				});
+
+				console.log("Event Flag data", flagData);
+			}
+			);
+	}
+
 	handlePageChange() {
 		this.loadSensorData();
+		this.loadHvacData();
 	}
 
 	render() {
-		
-		 var options = {
-				chart: {
-					type: 'line',
-					zoomType: 'x',
-					panning: true,
-        			panKey: 'shift'
+
+		var options = {
+			chart: {
+				height: (9 / 16 * 100) + '%',
+				type: 'line',
+				zoomType: 'x',
+				panning: true,
+				panKey: 'shift'
+			},
+			 rangeSelector: {
+		      selected: 1
+		    },
+			title: {
+				text: "Temperature and Humity around the year"
+			},
+			xAxis: {
+				title: { text: "Time" },
+				type: "datetime",
+				plotBands: []
+			},
+			yAxis: {
+				title: { text: "Temperature/Humidity" },
+				type: "linear"
+			},
+			series: [
+				{
+					id: "tempseries",
+					name: "Temperature",
+					data: this.state.sensorTempData
 				},
-				title: {
-					text: "Temperature and Humity around the year"
-				},
-				xAxis: {
-					title: { text: "Time" },
-					type: "datetime"
-				},
-				yAxis: {
-					title: { text: "Temperature/Humidity" },
-					type: "linear"
-				},
-				series: [
-					{
-						id: "tempseries",
-						name: "Temperature",
-						data: this.state.sensorTempData
+				{
+					id: "humidityseries",
+					name: "Humidity",
+					data: this.state.sensorHumidityData
+				},				
+				{
+					id: "events",
+					name: "Events",
+					type: "flags",
+					turboThreshold: 40000,
+					states: {
+						hover: {
+							fillColor: "#395C84",
+							color: "white"
+						}
 					},
-					{
-						id: "humidityseries",
-						name: "Humidity",
-						data: this.state.sensorHumidityData
-					}
-				]
-			};
+					style: {
+						// text style
+						color: "white"
+					},
+					data: this.state.flagData,
+					color: Highcharts.getOptions().colors[0], // same as onSeries
+					fillColor: Highcharts.getOptions().colors[0],
+					shape: "flag",
+					width: 16
+				}
+			]
+		};
 
 
 		return (
@@ -123,6 +199,7 @@ class LiveFeedChart extends React.Component {
 				<div>
 					<HighchartsReact
 						highcharts={Highcharts}
+						constructorType={'stockChart'}
 						ref={this.chartComponent}
 						options={options}
 					/>
