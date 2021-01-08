@@ -11,7 +11,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
-import com.weatherize.mynest.live.streamprocessor.config.GCPConfig;
 import com.weatherize.mynest.live.streamprocessor.controller.NestStreamProcessorController;
 import com.weatherize.mynest.live.streamprocessor.util.GCloudUtil;
 
@@ -20,28 +19,28 @@ import com.weatherize.mynest.live.streamprocessor.util.GCloudUtil;
 public class StreamprocessorApplication implements CommandLineRunner {
 
 	public static Logger logger = LoggerFactory.getLogger(StreamprocessorApplication.class);
-	
+
 	@Autowired
-	NestStreamProcessorController nestStream;
-	
+	NestStreamProcessorController nestStreamController;
+
 	public static void main(String[] args) {
 		SpringApplication.run(StreamprocessorApplication.class, args);
 
 	}
-	
-	@Bean 
-	public GCloudUtil gcpUtility() { 
-	    return new GCloudUtil(); 
+
+	@Bean
+	public GCloudUtil gcpUtility() {
+		return new GCloudUtil();
 	}
 
 	@Bean
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
 		return builder.build();
 	}
-	
+
 	public void run(String... args) throws Exception {
-		//nestStream.loadtemperaturedatafroms3();		
+		// nestStreamController.loadtemperaturedatafroms3();
+		// nestStreamController.loadhvaceventsfroms3();
 	}
 
-	
 }

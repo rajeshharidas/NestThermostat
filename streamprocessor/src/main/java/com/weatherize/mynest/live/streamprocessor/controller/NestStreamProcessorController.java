@@ -37,7 +37,7 @@ import com.weatherize.mynest.live.streamprocessor.util.JsonFilesfromAWSS3;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class NestStreamProcessorController {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(NestStreamProcessorController.class);
+	private static final Logger logger = LoggerFactory.getLogger(NestStreamProcessorController.class);
 
 	private final PubSubTemplate pubSubTemplate;
 
@@ -96,12 +96,12 @@ public class NestStreamProcessorController {
 				String message = String.format("Pulled and acked %s message(s)", messages.size());
 				return new ResponseEntity<>(message, HttpStatus.OK);
 			} catch (Exception ex) {
-				LOGGER.warn("Acking failed.", ex);
+				logger.warn("Acking failed.", ex);
 				String message = "Acking failed";
 				return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
 			}
 		} catch (Exception ex) {
-			LOGGER.error("Acking failed.", ex);
+			logger.error("Acking failed.", ex);
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -113,12 +113,12 @@ public class NestStreamProcessorController {
 
 				String json = message.getPubsubMessage().getData().toStringUtf8();
 
-				LOGGER.info("Message received from " + gcpConfig.getSdmDeviceSubscription() + " subscription: " + json);
+				logger.info("Message received from " + gcpConfig.getSdmDeviceSubscription() + " subscription: " + json);
 
 				try {
 					DeviceEvent deviceEvent = gcpUtility.GetSDMDeviceEvent(json);
 					String convertedObject = new Gson().toJson(deviceEvent, DeviceEvent.class);
-					LOGGER.info("Sending to device: " + convertedObject);
+					logger.info("Sending to device: " + convertedObject);
 					this.template.send("myNestEventTopic", convertedObject);
 				} catch (Exception ex) {
 					ex.printStackTrace();
@@ -181,7 +181,7 @@ public class NestStreamProcessorController {
 
 				if (item != null) {
 					String convertedObject = new Gson().toJson(item, DeviceEvent.class);
-					LOGGER.info("Sending to device: " + convertedObject);
+					logger.info("Sending to device: " + convertedObject);
 					this.template.send("myNestEventTopic", convertedObject);
 				}
 			});
