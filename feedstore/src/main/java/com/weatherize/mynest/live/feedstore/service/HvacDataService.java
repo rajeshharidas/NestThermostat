@@ -14,8 +14,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import com.weatherize.mynest.live.feedstore.model.HvacData;
-import com.weatherize.mynest.live.feedstore.model.TemperatureData;
-import com.weatherize.mynest.live.feedstore.repository.MyNestThermostatEventRepository;
+import com.weatherize.mynest.live.feedstore.repository.NestEventRepository;
 
 @Service
 public class HvacDataService {
@@ -23,7 +22,7 @@ public class HvacDataService {
 	private static final Logger logger = LoggerFactory.getLogger(HvacDataService.class);
 
 	@Autowired
-	MyNestThermostatEventRepository eventRepository;
+	NestEventRepository eventRepository;
 
 	@Cacheable("HvacData")
 	public List<HvacData> GetAllHvacData() {
@@ -35,7 +34,7 @@ public class HvacDataService {
 
 		logger.info("Data from the source. Cache miss!");
 
-		Slice<HvacData> pageData = eventRepository.findAll( pageable);
+		Slice<HvacData> pageData = eventRepository.findAll(pageable);
 
 		pageData.forEach(hvacData::add);
 
@@ -44,7 +43,7 @@ public class HvacDataService {
 			// consume slice
 			if (pageData.hasNext()) {
 				pageable = pageData.nextPageable();
-				pageData = eventRepository.findAll( pageable);
+				pageData = eventRepository.findAll(pageable);
 				pageData.forEach(hvacData::add);
 
 			} else {

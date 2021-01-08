@@ -14,17 +14,16 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.Bean;
 
 import com.weatherize.mynest.live.feedstore.model.TemperatureData;
-import com.weatherize.mynest.live.feedstore.repository.MyNestThermostatLiveRepository;
+import com.weatherize.mynest.live.feedstore.repository.NestDataLiveRepository;
 
 @SpringBootApplication
 @EnableCaching
 public class FeedstoreApplication implements CommandLineRunner {
 
 	@Autowired
-	MyNestThermostatLiveRepository myNestThermostatLiveRepository;
+	NestDataLiveRepository myNestThermostatLiveRepository;
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -33,23 +32,23 @@ public class FeedstoreApplication implements CommandLineRunner {
 	}
 
 	public Double getRandomNumber(int min, int max) {
-	    return (Double) ((Math.random() * (max - min)) + min);
-	}	
-	
+		return (Double) ((Math.random() * (max - min)) + min);
+	}
+
 	@Override
 	public void run(String... args) throws Exception {
 		// TODO Auto-generated method stub
 
 		TemperatureData data = new TemperatureData();
-		
+
 		data.setDatasetid(0);
-		data.setHumidity(getRandomNumber(0,100).floatValue());
-		data.setTemperature(getRandomNumber(0,100).floatValue());
+		data.setHumidity(getRandomNumber(0, 100).floatValue());
+		data.setTemperature(getRandomNumber(0, 100).floatValue());
 		data.setHvacCycleOn(false);
-		
+
 		DateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-		
+
 		Date date = Calendar.getInstance().getTime();
 
 		DateFormat cstFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -59,11 +58,11 @@ public class FeedstoreApplication implements CommandLineRunner {
 		data.setMode("Heat");
 		data.setMonth(12);
 		data.setYear(2020);
-		data.setTimetotarget(getRandomNumber(0,30).floatValue());
-		
+		data.setTimetotarget(getRandomNumber(0, 30).floatValue());
+
 		logger.info("Saving data - ", LocalDateTime.parse(cstFormat.format(date)));
 
-		//myNestThermostatLiveRepository.save(data);
+		// myNestThermostatLiveRepository.save(data);
 
 		var thermostatEntries = myNestThermostatLiveRepository.findAll();
 

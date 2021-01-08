@@ -8,6 +8,6 @@ import org.springframework.data.domain.Slice;
 
 import com.weatherize.mynest.live.feedstore.model.HvacData;
 
-public interface MyNestThermostatEventRepository extends CassandraRepository<HvacData, Date> {
+public interface NestEventRepository extends CassandraRepository<HvacData, Date> {
 	Slice<HvacData> findAllByOrderByTimeofeventDesc(Pageable pageable);
 }

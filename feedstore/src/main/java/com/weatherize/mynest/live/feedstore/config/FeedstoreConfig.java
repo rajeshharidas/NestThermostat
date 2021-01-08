@@ -7,36 +7,36 @@ import org.springframework.data.cassandra.config.SchemaAction;
 import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories;
 
 @Configuration
-@EnableCassandraRepositories 
+@EnableCassandraRepositories
 public class FeedstoreConfig extends AbstractCassandraConfiguration {
 
 	@Value("${spring.data.cassandra.contact-points}")
-	  private String contactPoints;
+	private String contactPoints;
 
-	  @Value("${spring.data.cassandra.port}")
-	  private int port;
+	@Value("${spring.data.cassandra.port}")
+	private int port;
 
-	  @Value("${spring.data.cassandra.keyspace}")
-	  private String keySpace;
+	@Value("${spring.data.cassandra.keyspace}")
+	private String keySpace;
 
-	  @Override
-	  protected String getKeyspaceName() {
-	    return keySpace;
-	  }
+	@Override
+	protected String getKeyspaceName() {
+		return keySpace;
+	}
 
-	  @Override
-	  protected String getContactPoints() {
-	    return contactPoints;
-	  }
+	@Override
+	protected String getContactPoints() {
+		return contactPoints;
+	}
 
-	  @Override
-	  protected int getPort() {
-	    return port;
-	  }
+	@Override
+	protected int getPort() {
+		return port;
+	}
 
-	  @Override
-	  public SchemaAction getSchemaAction() {
-	    return SchemaAction.CREATE_IF_NOT_EXISTS;
-	  }
+	@Override
+	public SchemaAction getSchemaAction() {
+		return SchemaAction.CREATE_IF_NOT_EXISTS;
+	}
 
 }

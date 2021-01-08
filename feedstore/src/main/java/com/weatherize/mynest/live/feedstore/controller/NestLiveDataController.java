@@ -35,27 +35,27 @@ import com.google.gson.JsonObject;
 import com.weatherize.mynest.live.feedstore.model.FeedResponse;
 import com.weatherize.mynest.live.feedstore.model.HvacData;
 import com.weatherize.mynest.live.feedstore.model.TemperatureData;
-import com.weatherize.mynest.live.feedstore.repository.MyNestThermostatEventRepository;
-import com.weatherize.mynest.live.feedstore.repository.MyNestThermostatLiveRepository;
+import com.weatherize.mynest.live.feedstore.repository.NestDataLiveRepository;
+import com.weatherize.mynest.live.feedstore.repository.NestEventRepository;
 import com.weatherize.mynest.live.feedstore.service.HvacDataService;
 import com.weatherize.mynest.live.feedstore.service.TemperatureDataService;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/dataapi")
-public class TemperatureDataController {
+public class NestLiveDataController {
 
-	private static final Logger logger = LoggerFactory.getLogger(TemperatureDataController.class);
-
-	@Autowired
-	MyNestThermostatLiveRepository thermostatRepository;
+	private static final Logger logger = LoggerFactory.getLogger(NestLiveDataController.class);
 
 	@Autowired
-	MyNestThermostatEventRepository eventDataRepository;
+	NestDataLiveRepository thermostatRepository;
+
+	@Autowired
+	NestEventRepository eventDataRepository;
 
 	@Autowired
 	TemperatureDataService temperatureDataService;
-	
+
 	@Autowired
 	HvacDataService hvacDataService;
 
@@ -155,7 +155,7 @@ public class TemperatureDataController {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	@GetMapping("/hvacdata")
 	public ResponseEntity<FeedResponse<HvacData>> getAllHvacData() {
 		try {
@@ -283,13 +283,11 @@ public class TemperatureDataController {
 					hvacEvents.add(hvacMode);
 				}
 
-				
 				if (!hvacEvents.isEmpty()) {
 					logger.info("Saving data - ", hvacEvents);
 					List<HvacData> eventsData = eventDataRepository.saveAll(hvacEvents);
 					logger.info("Parsed json string as list of Hvac Event objects: " + eventsData.toString());
-				}
-				else
+				} else
 					logger.info("Nothing to save yet!");
 
 			} catch (ParseException pex) {

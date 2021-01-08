@@ -13,18 +13,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
-import com.weatherize.mynest.live.feedstore.controller.TemperatureDataController;
-import com.weatherize.mynest.live.feedstore.model.FeedResponse;
 import com.weatherize.mynest.live.feedstore.model.TemperatureData;
-import com.weatherize.mynest.live.feedstore.repository.MyNestThermostatLiveRepository;
+import com.weatherize.mynest.live.feedstore.repository.NestDataLiveRepository;
 
 @Service
 public class TemperatureDataService {
 
-	private static final Logger logger = LoggerFactory.getLogger(TemperatureDataController.class);
+	private static final Logger logger = LoggerFactory.getLogger(TemperatureDataService.class);
 
 	@Autowired
-	MyNestThermostatLiveRepository thermostatRepository;
+	NestDataLiveRepository thermostatRepository;
 
 	@Cacheable("TemperatureData")
 	public List<TemperatureData> GetAllTemperatureData() {
