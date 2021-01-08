@@ -13,15 +13,15 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class MynestdataApplicationTests {
+public class MyNestApplicationMvcTests {
 
 	@Autowired
 	private MockMvc mockMvc;
 
 	@Test
-	public void TestTempDataLoad() throws Exception{
-			this.mockMvc.perform(get("/api/thermostats")).andDo(print()).andExpect(status().isOk())
-					.andExpect(jsonPath("$").exists());
+	public void TestTempDataLoad() throws Exception {
+		this.mockMvc.perform(get("/api/thermostats")).andDo(print()).andExpect(status().isOk())
+				.andExpect(jsonPath("$").exists());
 	}
 
 	@Test
