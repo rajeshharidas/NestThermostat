@@ -6,9 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.web.client.RestTemplate;
 
 import com.weatherize.reports.mynest.repository.SensorDataRepository;
 import com.weatherize.reports.mynest.repository.ThermostatRepository;
@@ -26,6 +29,11 @@ public class MynestdataApplication implements CommandLineRunner{
 	
 	public static void main(String[] args) {
 		SpringApplication.run(MynestdataApplication.class, args);
+	}
+	
+	@Bean
+	public RestTemplate restTemplate(RestTemplateBuilder builder) {
+		return builder.build();
 	}
 
 	@Override
