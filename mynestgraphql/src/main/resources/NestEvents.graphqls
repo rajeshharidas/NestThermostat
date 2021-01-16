@@ -1,0 +1,13 @@
+
+type Query{
+  allEvents: [HvacData!]!
+  hello: String!
+}
+
+
+type HvacData{
+  eventid: String!
+  timeofevent:String!
+  traitkey:String!
+  traitvalue:String
+}
